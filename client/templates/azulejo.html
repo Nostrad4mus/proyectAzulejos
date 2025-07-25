@@ -278,18 +278,18 @@
 <div class="tile-detail-container">
     <div class="tile-detail">
         <div class="tile-gallery">
-            <div class="main-image" style="background-image: url('{{ azulejo.imagen.url }}')" id="mainImage"></div>
+            <div class="main-image" style="background-image: url({% static "" %}{{ azulejo.imagen.url }})" id="mainImage"></div>
             <div class="thumbnails">
                 <div class="thumbnail active" 
-                     style="background-image: url('{{ azulejo.imagen.url }}')" 
-                     onclick="changeMainImage('{{ azulejo.imagen.url }}', this)"
-                     data-fullsize="{{ azulejo.imagen.url }}"></div>
+                     style="background-image: url('{% static "" %}{{ azulejo.imagen.url }}')" 
+                     onclick="changeMainImage('{% static "" %}{{ azulejo.imagen.url }}', this)"
+                     data-fullsize="{% static "" %}{{ azulejo.imagen.url }}"></div>
                 
                 {% if azulejo.imagen_detalle %}
                 <div class="thumbnail" 
-                     style="background-image: url('{{ azulejo.imagen_detalle.url }}')" 
-                     onclick="changeMainImage('{{ azulejo.imagen_detalle.url }}', this)"
-                     data-fullsize="{{ azulejo.imagen_detalle.url }}"></div>
+                     style="background-image: url('{% static "" %}{{ azulejo.imagen_detalle.url }}')" 
+                     onclick="changeMainImage('{% static "" %}{{ azulejo.imagen_detalle.url }}', this)"
+                     data-fullsize="{% static "" %}{{ azulejo.imagen_etalle.url }}"></div>
                 {% endif %}
                 
                 {% if azulejo.imagen_contexto %}

@@ -16,7 +16,7 @@ from django.db.models import Q
 import random
 
 def clear_dir(recurso):
-    recurso = str(recurso).replace('client/', '')
+    recurso = str(recurso).replace('client/static/', '')
     return recurso
 
 # Create your views here.
@@ -43,8 +43,8 @@ def see_catalogo(req):
         azulejos = azulejos.filter(color_principal__icontains=color)
         
     for i in range(len(azulejos)):
-        azulejos[i].imagen_detalle = str(azulejos[i].imagen_detalle).replace("client/", "")
-        azulejos[i].imagen = str(azulejos[i].imagen).replace("client/", "")
+        azulejos[i].imagen_detalle = str(azulejos[i].imagen_detalle).replace("client/static/", "")
+        azulejos[i].imagen = str(azulejos[i].imagen).replace("client/static/", "")
     
     # Paginación
     paginator = Paginator(azulejos, 6)
@@ -87,7 +87,7 @@ def see_rutas(req):
     azulejos = Azulejo.objects.all()
     
     for azulejo in azulejos:
-        azulejo.imagen = str(azulejo.imagen).replace("client/", "")
+        azulejo.imagen = str(azulejo.imagen).replace("client/static/", "")
         azulejo.longitud, azulejo.latitud = str(azulejo.longitud), str(azulejo.latitud)
     return render(req, 'mapa.html', {
         "azulejos": azulejos
@@ -97,9 +97,9 @@ def see_rutas(req):
 def see_azulejo(req, tipo):
     
     azulejo = get_object_or_404(Azulejo,id=tipo)
-    azulejo.imagen = str(azulejo.imagen).replace("client/", "")
-    azulejo.imagen_principal = str(azulejo.imagen_principal).replace("client/", "")
-    azulejo.imagen_detalle = str(azulejo.imagen_detalle).replace("client/", "")
+    azulejo.imagen = str(azulejo.imagen).replace("client/static/", "")
+    azulejo.imagen_principal = str(azulejo.imagen_principal).replace("client/static/", "")
+    azulejo.imagen_detalle = str(azulejo.imagen_detalle).replace("client/static/", "")
 
     return render(req, 'azulejo.html',{
         "azulejo":azulejo
@@ -130,8 +130,8 @@ def see_librery(req):
         )
     
     for recurso in recursos:
-        recurso.archivo = str(recurso.archivo).replace('client/', '')
-        recurso.vista_previa = str(recurso.vista_previa).replace('client/', '')
+        recurso.archivo = str(recurso.archivo).replace('client/static/', '')
+        recurso.vista_previa = str(recurso.vista_previa).replace('client/static/', '')
     
     # Paginación
     paginator = Paginator(recursos, 6)
@@ -153,7 +153,7 @@ def see_about(req):
     miembros = MiembroEquipo.objects.all()
     
     for miembro in miembros:
-        miembro.imagen = str(miembro.imagen).replace("client/", "")
+        miembro.imagen = str(miembro.imagen).replace("client/static/", "")
     
     return render(req, 'about.html', {'miembros': miembros})
 
@@ -196,8 +196,8 @@ def see_child_historias(req):
     page_obj = paginator.get_page(page_number)
     
     for cuento in page_obj.object_list:
-        cuento.portada = str(cuento.portada).replace("client/","")
-        cuento.archivo_animado = str(cuento.archivo_animado).replace("client/","")
+        cuento.portada = str(cuento.portada).replace("client/static/","")
+        cuento.archivo_animado = str(cuento.archivo_animado).replace("client/static/","")
     
     
     context = {
@@ -214,8 +214,8 @@ def see_cuento(req, slug):
     cuento = get_object_or_404(CuentoAnimado, slug=slug, activo=True)
     cuento.incrementar_visitas()
     
-    cuento.portada = str(cuento.portada).replace("client/","")
-    cuento.archivo_animado = str(cuento.archivo_animado).replace("client/","")
+    cuento.portada = str(cuento.portada).replace("client/static/","")
+    cuento.archivo_animado = str(cuento.archivo_animado).replace("client/static/","")
     
     context = {
         'cuento': cuento,
@@ -228,8 +228,8 @@ def see_talleres(req):
     talleres = TallerCreativo.objects.filter(activo=True).order_by('-fecha_publicacion')
     
     for taller in talleres:
-        taller.imagen_portada = str(taller.imagen_portada).replace("client/","")
-        taller.video_tutorial = str(taller.video_tutorial).replace("client/", "")
+        taller.imagen_portada = str(taller.imagen_portada).replace("client/static/","")
+        taller.video_tutorial = str(taller.video_tutorial).replace("client/static/", "")
 
     
     # Filtros
@@ -263,7 +263,7 @@ def see_taller(req, slug):
     # Materiales como lista
     materiales = [m.strip() for m in taller.materiales_necesarios.split('\n') if m.strip()]
     
-    taller.video_tutorial = str(taller.video_tutorial).replace("client/","")
+    taller.video_tutorial = str(taller.video_tutorial).replace("client/static/","")
     
     context = {
         'taller': taller,
@@ -359,8 +359,8 @@ def see_child_librery(req):
         )
     
     for recurso in recursos:
-        recurso.archivo = str(recurso.archivo).replace('client/', '')
-        recurso.vista_previa = str(recurso.vista_previa).replace('client/', '')
+        recurso.archivo = str(recurso.archivo).replace('client/static/', '')
+        recurso.vista_previa = str(recurso.vista_previa).replace('client/static/', '')
     
     # Paginación
     paginator = Paginator(recursos, 12)

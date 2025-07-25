@@ -12,6 +12,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import requests
+
+def check_internet_connection():
+    try:
+        # Intentamos acceder a un sitio confiable con timeout corto
+        requests.get("https://www.google.com", timeout=5)
+        return True
+    except (requests.ConnectionError, requests.Timeout):
+        return False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -122,8 +131,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# STATIC_URL = 'static/'
-STATIC_URL = 'https://raw.githubusercontent.com/Nostrad4mus/proyectAzulejos/refs/heads/main/client/static/'
+
+if check_internet_connection():
+    STATIC_URL = 'https://raw.githubusercontent.com/Nostrad4mus/proyectAzulejos/refs/heads/main/client/static/'
+else:
+    STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Carpeta donde se recolectarán
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # Carpeta "static" en tu proyecto

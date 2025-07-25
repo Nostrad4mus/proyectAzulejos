@@ -347,7 +347,7 @@
     <div class="team-grid">
         {% for miembro in miembros %}
         <div class="team-member" {% if miembro.nombre == "Alejandro" %}onclick="showSecretMessage()"{% endif %}>
-            <img src="{{ miembro.imagen.url }}" alt="{{ miembro.nombre }}" class="member-image">
+            <img src="{% static "" %}{{ miembro.imagen.url }}" alt="{{ miembro.nombre }}" class="member-image">
             <div class="member-info">
                 <h3 class="member-name">{{ miembro.nombre }}</h3>
                 <p class="member-role">{{ miembro.get_rol_display }}{% if miembro.rol_secundario %} / {{ miembro.get_rol_secundario_display }}{% endif %}</p>

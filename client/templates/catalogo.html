@@ -289,7 +289,7 @@
                 {% for azulejo in page_obj %}
                 <div class="tile-card">
                     <a href="catalogo/{{azulejo.id}}">
-                        <img src="{{ azulejo.imagen }}" alt="{{ azulejo.nombre }}" class="tile-image">
+                        <img src="{% static "" %}{{ azulejo.imagen }}" alt="{{ azulejo.nombre }}" class="tile-image">
                     </a>
                     <div class="tile-info">
                         <h3 class="tile-name">{{ azulejo.nombre }}</h3>
