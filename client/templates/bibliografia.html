@@ -1,0 +1,400 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+        --btn-color: #3498db;
+        --btn-hover: #2980b9;
+    }
+    
+    .library-header {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 4rem 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .library-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--dark-color);
+    }
+    
+    .library-subtitle {
+        font-weight: 300;
+        max-width: 800px;
+        margin: 0 auto;
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    .filter-section {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 3rem;
+    }
+    
+    .filter-section label {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    
+    .resource-card {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .resource-icon {
+        font-size: 2.5rem;
+        text-align: center;
+        padding: 2rem 0;
+        background-color: var(--light-color);
+        color: var(--secondary-color);
+    }
+    
+    .resource-info {
+        padding: 1.8rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .resource-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        line-height: 1.3;
+    }
+    
+    .resource-meta {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .meta-item i {
+        color: var(--secondary-color);
+    }
+    
+    .resource-description {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .resource-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .resource-type {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .download-btn {
+        background-color: var(--btn-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .download-btn:hover {
+        background-color: var(--btn-hover);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 4rem;
+        flex-wrap: wrap;
+    }
+    
+    .page-link {
+        padding: 0.6rem 1rem;
+        margin: 0.3rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .page-link:hover {
+        background-color: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color);
+    }
+    
+    .page-current {
+        background-color: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color);
+    }
+    
+    .empty-library {
+        text-align: center;
+        padding: 5rem;
+        color: #666;
+        grid-column: 1 / -1;
+        background-color: var(--card-color);
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .empty-library h3 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-library p {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-clear {
+        background-color: var(--light-color);
+        color: var(--primary-color);
+        border: none;
+        margin-top: 1rem;
+    }
+    
+    .btn-clear:hover {
+        background-color: #d6e0e7;
+        color: var(--primary-color);
+    }
+    
+    .search-icon {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+    
+    .search-icon:hover {
+        background-color: var(--btn-hover);
+    }
+    
+    @media (max-width: 992px) {
+        .library-title {
+            font-size: 2rem;
+        }
+        
+        .resource-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .library-header {
+            padding: 3rem 1rem;
+        }
+        
+        .library-title {
+            font-size: 1.8rem;
+        }
+        
+        .filter-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container my-5">
+    <div class="filter-section">
+        <h1 class="library-title"><i class="bi bi-collection me-2"></i> Biblioteca Digital</h1>
+        <form method="get">
+            <div class="row">
+                <div class="col-lg-5 mb-3">
+                    <label for="tipo" class="form-label">Tipo de recurso</label>
+                    <select name="tipo" id="tipo" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        {% for tipo in tipos %}
+                        <option value="{{ tipo.0 }}" {% if filtro_tipo == tipo.0 %}selected{% endif %}>
+                            {{ tipo.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-lg-5 mb-3">
+                    <label for="area" class="form-label">Área temática</label>
+                    <select name="area" id="area" class="form-select">
+                        <option value="">Todas las áreas</option>
+                        {% for area in areas %}
+                        <option value="{{ area.0 }}" {% if filtro_area == area.0 %}selected{% endif %}>
+                            {{ area.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-lg-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-grid w-100">
+                        <i class="bi bi-funnel me-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Buscar por título, autor o contenido..." value="{{ busqueda }}">
+                        <button class="btn search-icon" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            {% if filtro_tipo or filtro_area or busqueda %}
+            <div class="text-center">
+                <a href="/librery" class="btn btn-clear">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="resource-grid">
+        {% if page_obj.object_list %}
+            {% for recurso in page_obj %}
+            <div class="resource-card">
+                <div class="resource-icon">
+                    <i class="{{ recurso.get_icon_class }}"></i>
+                </div>
+                
+                <div class="resource-info">
+                    <h3 class="resource-title">{{ recurso.titulo }}</h3>
+                    <div class="resource-meta">
+                        <span class="meta-item">
+                            <i class="bi bi-person"></i>
+                            {{ recurso.autor|default:"Autor no especificado" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-calendar"></i>
+                            {{ recurso.fecha_publicacion|date:"Y"|default:"Fecha no especificada" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-file-earmark"></i>
+                            {{ recurso.get_file_size }}
+                        </span>
+                    </div>
+                    
+                    <p class="resource-description">
+                        {{ recurso.descripcion|truncatewords:25|default:"Descripción no disponible" }}
+                    </p>
+                    
+                    <div class="resource-footer">
+                        <span class="resource-type">{{ recurso.get_tipo_display }}</span>
+                        <a href="{{ recurso.archivo.url }}" class="download-btn" download>
+                            <i class="bi bi-download"></i> Descargar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-library">
+                <h3>No se encontraron recursos con los filtros seleccionados</h3>
+                <p>Intenta con otros criterios de búsqueda o limpia los filtros actuales</p>
+                <a href="/librery" class="btn btn-grid">
+                    <i class="bi bi-collection me-1"></i> Ver todos los recursos
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                <i class="bi bi-chevron-double-left"></i> Primera
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                <i class="bi bi-chevron-left"></i> Anterior
+            </a>
+        {% endif %}
+        
+        <span class="page-link page-current">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                Siguiente <i class="bi bi-chevron-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                Última <i class="bi bi-chevron-double-right"></i>
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+{% endblock %}

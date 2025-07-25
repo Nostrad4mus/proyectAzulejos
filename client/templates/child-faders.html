@@ -1,0 +1,270 @@
+{% extends "child-templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary: #FF6B6B;
+        --secondary: #4ECDC4;
+        --accent: #FFD166;
+        --dark: #26547C;
+        --light: #FCFCFC;
+    }
+    
+    .parents-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+    }
+    
+    .parents-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .parents-title {
+        font-size: 2.5rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .parents-subtitle {
+        font-size: 1.2rem;
+        color: #555;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .info-section {
+        background-color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .section-title {
+        color: var(--primary);
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-content {
+        color: #444;
+        font-size: 1.1rem;
+    }
+    
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .benefit-card {
+        background-color: var(--light);
+        border-radius: 10px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--accent);
+    }
+    
+    .benefit-title {
+        color: var(--dark);
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .age-groups {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .age-group {
+        background-color: var(--secondary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    
+    .safety-tips {
+        background-color: #e9f7fe;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1.5rem;
+        border-left: 4px solid var(--secondary);
+    }
+    
+    .tip-item {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .tip-item:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--primary);
+        font-size: 1.5rem;
+    }
+    
+    .character {
+        position: absolute;
+        width: 100px;
+        opacity: 0.8;
+    }
+    
+    .azulejin-parents {
+        top: -20px;
+        left: -30px;
+        transform: rotate(-15deg);
+    }
+    
+    .azulejina-parents {
+        bottom: -30px;
+        right: -20px;
+        transform: rotate(15deg);
+    }
+    
+    @media (max-width: 768px) {
+        .parents-title {
+            font-size: 2rem;
+        }
+        
+        .parents-container {
+            padding: 1.5rem;
+        }
+        
+        .character {
+            width: 70px;
+            opacity: 0.6;
+        }
+    }
+</style>
+
+<div class="parents-container">
+    <div class="parents-header">
+        <h1 class="parents-title">Información para Padres</h1>
+        <p class="parents-subtitle">Todo lo que necesitas saber sobre nuestra plataforma educativa de azulejos habaneros</p>
+        
+        <img src="{% static 'img/azulejin/azulejin.png' %}" class="character azulejin-parents" alt="Azulejín">
+        <img src="{% static 'img/azulejin/azulejina.png' %}" class="character azulejina-parents" alt="Azulejina">
+    </div>
+    
+    <div class="info-section">
+        <h2 class="section-title">
+            <i class="fas fa-info-circle"></i> Sobre el Proyecto
+        </h2>
+        <div class="section-content">
+            <p>Nuestra plataforma nace con el objetivo de acercar el patrimonio cultural de los azulejos habaneros a los niños de una forma divertida y educativa. A través de juegos interactivos, cuentos y actividades, los más pequeños pueden descubrir la historia y belleza de estos tesoros arquitectónicos.</p>
+            
+            <p>El proyecto fue desarrollado por un equipo multidisciplinario de historiadores, pedagogos y diseñadores, con el apoyo de instituciones culturales cubanas. Todos los contenidos han sido cuidadosamente revisados para garantizar su valor educativo y adecuación a diferentes edades.</p>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h2 class="section-title">
+            <i class="fas fa-child"></i> Beneficios Educativos
+        </h2>
+        <div class="section-content">
+            <p>Nuestra plataforma ofrece múltiples beneficios para el desarrollo de los niños:</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-brain"></i> Desarrollo cognitivo
+                    </h3>
+                    <p>Estimula la memoria, atención y capacidad de observación a través de juegos de identificación de patrones y colores.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-history"></i> Conciencia histórica
+                    </h3>
+                    <p>Introduce conceptos de patrimonio cultural e historia local de forma accesible y entretenida.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-palette"></i> Creatividad
+                    </h3>
+                    <p>Fomenta la expresión artística mediante talleres virtuales de diseño de azulejos.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-map-marked-alt"></i> Exploración urbana
+                    </h3>
+                    <p>Incentiva el interés por el entorno arquitectónico y la observación del espacio público.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h2 class="section-title">
+            <i class="fas fa-user-graduate"></i> Por Edades
+        </h2>
+        <div class="section-content">
+            <p>Nuestros contenidos están adaptados a diferentes rangos de edad:</p>
+            
+            <div class="age-groups">
+                <span class="age-group">3-5 años</span>
+                <span class="age-group">6-8 años</span>
+                <span class="age-group">9-12 años</span>
+            </div>
+            
+            <p style="margin-top: 1.5rem;">Para los más pequeños (3-5 años): Cuentos interactivos y juegos sencillos de colores y formas. Los niños de 6-8 años disfrutarán de búsquedas del tesoro y talleres creativos. Los mayores (9-12 años) pueden explorar contenidos más detallados sobre historia y técnicas artesanales.</p>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h2 class="section-title">
+            <i class="fas fa-shield-alt"></i> Seguridad y Privacidad
+        </h2>
+        <div class="section-content">
+            <p>La seguridad de los niños es nuestra prioridad:</p>
+            
+            <div class="safety-tips">
+                <div class="tip-item">No recopilamos datos personales de los niños</div>
+                <div class="tip-item">No contiene publicidad ni enlaces externos</div>
+                <div class="tip-item">Todos los contenidos son 100% educativos</div>
+                <div class="tip-item">No requiere registro ni creación de cuentas</div>
+            </div>
+            
+            <p style="margin-top: 1.5rem;">Recomendamos que los niños menores de 6 años utilicen la plataforma acompañados de un adulto para maximizar la experiencia de aprendizaje.</p>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h2 class="section-title">
+            <i class="fas fa-lightbulb"></i> Cómo Sacar el Máximo Provecho
+        </h2>
+        <div class="section-content">
+            <p>Ideas para complementar la experiencia digital:</p>
+            
+            <div class="safety-tips">
+                <div class="tip-item">Visiten lugares con azulejos en su ciudad y jueguen a identificarlos</div>
+                <div class="tip-item">Realicen manualidades inspiradas en los diseños vistos</div>
+                <div class="tip-item">Conversen sobre lo aprendido y relacionen con otras áreas del conocimiento</div>
+                <div class="tip-item">Utilicen nuestros recursos descargables para actividades fuera de pantalla</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}

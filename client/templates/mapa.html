@@ -1,0 +1,493 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/3.0.2/leaflet-search.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+    }
+    
+    #map-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 60px);
+        position: relative;
+    }
+    
+    #map-header {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 1000;
+    }
+    
+    #map-header h1 {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+    }
+    
+    #map-header p {
+        font-weight: 300;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    #map {
+        flex-grow: 1;
+        width: 100%;
+    }
+    
+    /* Estilos para los popups */
+    .leaflet-popup-content {
+        min-width: 250px;
+        max-width: 300px;
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    .popup-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .popup-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .popup-description {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+        line-height: 1.5;
+    }
+    
+    .popup-era {
+        font-style: italic;
+        color: var(--secondary-color);
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+    
+    .popup-link {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 3px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    
+    .popup-link:hover {
+        background-color: var(--btn-hover);
+        color: white;
+    }
+    
+    .locMap {
+        display: none;
+    }
+    
+    /* Controles personalizados */
+    .leaflet-control-search {
+        background: white;
+        padding: 5px;
+        border-radius: 4px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    
+    .leaflet-control-search input {
+        width: 250px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+    
+    /* Botón de ayuda */
+    .help-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background-color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .help-button:hover {
+        background-color: var(--secondary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    /* Modal de ayuda */
+    .help-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .help-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    }
+    
+    .help-content h2 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 0.5rem;
+    }
+    
+    .help-step {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .step-number {
+        background-color: var(--secondary-color);
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+        font-weight: bold;
+    }
+    
+    .step-content h3 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .step-content p {
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .close-help {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #777;
+        transition: color 0.3s ease;
+    }
+    
+    .close-help:hover {
+        color: var(--accent-color);
+    }
+    
+    /* Capas base */
+    .leaflet-control-layers {
+        border-radius: 4px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    
+    /* Responsivo */
+    @media (max-width: 768px) {
+        #map-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        #map-header p {
+            font-size: 0.9rem;
+        }
+        
+        .leaflet-control-search input {
+            width: 180px;
+            padding: 6px 10px;
+        }
+        
+        .help-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div id="map-container">
+    <div id="map-header">
+        <h1><i class="fas fa-map-marked-alt me-2"></i> Mapa de Azulejos Habaneros</h1>
+        <p>Explora el patrimonio cerámico de La Habana en este mapa interactivo</p>
+    </div>
+    
+    <div id="map"></div>
+    
+    <!-- Botón de ayuda flotante -->
+    <div class="help-button" id="helpButton" title="Cómo usar el mapa">
+        <i class="bi bi-question-lg"></i>
+    </div>
+</div>
+
+<!-- Modal de ayuda -->
+<div class="help-modal" id="helpModal">
+    <div class="help-content">
+        <span class="close-help" id="closeHelp">&times;</span>
+        <h2><i class="bi bi-info-circle me-2"></i>Guía para usar el mapa</h2>
+        
+        <div class="help-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Navegación básica</h3>
+                <p>Puedes moverte por el mapa haciendo clic y arrastrando con el ratón. Usa la rueda del ratón para acercar o alejar la vista. En dispositivos táctiles, desliza con dos dedos para hacer zoom.</p>
+            </div>
+        </div>
+        
+        <div class="help-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Búsqueda de azulejos</h3>
+                <p>Utiliza el cuadro de búsqueda en la esquina superior derecha para encontrar azulejos por nombre. Escribe parte del nombre y selecciona una opción de las sugerencias.</p>
+            </div>
+        </div>
+        
+        <div class="help-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Información detallada</h3>
+                <p>Haz clic en cualquier marcador <i class="fas fa-map-marker-alt" style="color: #e74c3c;"></i> para ver información detallada sobre ese azulejo, incluyendo imagen, descripción y época.</p>
+            </div>
+        </div>
+        
+        <div class="help-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Capas del mapa</h3>
+                <p>En la esquina superior derecha encontrarás el control de capas <i class="bi bi-layers"></i> donde puedes cambiar entre diferentes vistas del mapa según tus preferencias.</p>
+            </div>
+        </div>
+        
+        <div class="help-step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h3>Rutas sugeridas</h3>
+                <p>Próximamente podrás seleccionar rutas temáticas que agrupan azulejos por estilo arquitectónico o periodo histórico.</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button id="closeHelpButton" class="btn btn-grid">
+                <i class="bi bi-check-circle me-1"></i> Entendido
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Datos de los azulejos -->
+{% for azulejo in azulejos %}
+<div class="locMap" 
+     data-lat="{{ azulejo.latitud }}" 
+     data-lng="{{ azulejo.longitud }}" 
+     data-title="{{ azulejo.titulo }}" 
+     data-description="{{ azulejo.descripcion }}" 
+     data-era="{{ azulejo.epoca }}" 
+     data-image="{{ azulejo.imagen }}"
+     data-id="{{ azulejo.id }}"></div>
+{% endfor %}
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/3.0.2/leaflet-search.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar el mapa centrado en La Habana
+        const map = L.map('map').setView([23.1136, -82.3666], 14);
+        
+        // Capas base
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+        
+        // Añadir capa base por defecto
+        osmLayer.addTo(map);
+        
+        // Control de capas
+        const baseLayers = {
+            "Mapa estándar": osmLayer,
+            "Vista satélite": satelliteLayer
+        };
+        
+        L.control.layers(baseLayers, null, {position: 'topright'}).addTo(map);
+        
+        // Icono personalizado para los marcadores
+        const azulejoIcon = L.icon({
+            iconUrl: '{% static "img/pin-48.svg" %}',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+        
+        // Grupo para los marcadores
+        const markersLayer = new L.LayerGroup();
+        map.addLayer(markersLayer);
+        
+        const markersData = [];
+        
+        // Procesar todas las ubicaciones
+        const locations = document.querySelectorAll('.locMap');
+        
+        locations.forEach(loc => {
+            const lat = parseFloat(loc.dataset.lat);
+            const lng = parseFloat(loc.dataset.lng);
+            const title = loc.dataset.title;
+            const description = loc.dataset.description;
+            const era = loc.dataset.era;
+            const imageUrl = loc.dataset.image;
+            const id = loc.dataset.id;
+            
+            // Crear contenido del popup
+            let popupContent = '';
+            
+            if (imageUrl) {
+                popupContent += `<img src="${imageUrl}" class="popup-image" alt="${title}">`;
+            }
+            
+            popupContent += `
+                <div class="popup-title">${title}</div>
+                <div class="popup-era">${era}</div>
+                <div class="popup-description">${description}</div>
+                <a href="/catalogo/${id}" class="popup-link">
+                    <i class="bi bi-info-circle me-1"></i>Ver detalles
+                </a>
+            `;
+            
+            // Añadir marcador al mapa
+            const marker = L.marker([lat, lng], { 
+                icon: azulejoIcon,
+                title: title
+            }).bindPopup(popupContent);
+            
+            marker.addTo(markersLayer);
+            
+            // Añadir datos para búsqueda
+            markersData.push({
+                loc: [lat, lng],
+                title: title,
+                marker: marker
+            });
+        });
+        
+        // Configurar control de búsqueda
+        const searchControl = new L.Control.Search({
+            layer: markersLayer,
+            propertyName: 'title',
+            marker: false,
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 18);
+            },
+            textPlaceholder: 'Buscar azulejos...',
+            position: 'topright',
+            textErr: 'Azulejo no encontrado',
+            zoom: 18
+        });
+        
+        searchControl.on('search:locationfound', function(e) {
+            e.layer.openPopup();
+        });
+        
+        map.addControl(searchControl);
+        
+        // Ajustar el zoom para mostrar todos los marcadores
+        if (locations.length > 0) {
+            const group = new L.featureGroup(Array.from(markersLayer.getLayers()));
+            map.fitBounds(group.getBounds().pad(0.2));
+        }
+        
+        // Control de ayuda
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelp = document.getElementById('closeHelp');
+        const closeHelpButton = document.getElementById('closeHelpButton');
+        
+        helpButton.addEventListener('click', function() {
+            helpModal.style.display = 'flex';
+        });
+        
+        closeHelp.addEventListener('click', function() {
+            helpModal.style.display = 'none';
+        });
+        
+        closeHelpButton.addEventListener('click', function() {
+            helpModal.style.display = 'none';
+        });
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+        
+        // Escala del mapa
+        L.control.scale({position: 'bottomleft'}).addTo(map);
+        
+        // Botón para centrar el mapa
+        const locateControl = L.control.locate({
+            position: 'bottomright',
+            drawCircle: false,
+            flyTo: true,
+            keepCurrentZoomLevel: true,
+            locateOptions: {
+                maxZoom: 16
+            },
+            strings: {
+                title: "Mostrar mi ubicación"
+            }
+        }).addTo(map);
+    });
+</script>
+{% endblock content %}

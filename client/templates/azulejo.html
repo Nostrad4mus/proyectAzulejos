@@ -1,0 +1,449 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+        --btn-color: #3498db;
+        --btn-hover: #2980b9;
+    }
+    
+    .tile-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .tile-detail {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 3rem;
+    }
+    
+    .tile-gallery {
+        display: flex;
+        height: 500px;
+        position: relative;
+    }
+    
+    .main-image {
+        flex: 3;
+        background-size: cover;
+        background-position: center;
+        transition: background-image 0.5s ease;
+    }
+    
+    .thumbnails {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        background-color: var(--light-color);
+    }
+    
+    .thumbnail {
+        height: 120px;
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .thumbnail::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.3);
+        transition: background-color 0.3s ease;
+    }
+    
+    .thumbnail:hover, .thumbnail.active {
+        opacity: 1;
+    }
+    
+    .thumbnail.active::after, .thumbnail:hover::after {
+        background-color: rgba(0,0,0,0.1);
+    }
+    
+    .tile-info {
+        padding: 2.5rem;
+    }
+    
+    .tile-title {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+    }
+    
+    .tile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .meta-item {
+        background-color: var(--light-color);
+        padding: 0.5rem 1.2rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .meta-icon {
+        margin-right: 8px;
+        color: var(--secondary-color);
+    }
+    
+    .tile-description {
+        line-height: 1.8;
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .tile-section {
+        margin-bottom: 2rem;
+    }
+    
+    .tile-section h3 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .color-swatch {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 10px;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 2rem;
+        color: var(--secondary-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+    }
+    
+    .back-link:hover {
+        background-color: var(--light-color);
+        text-decoration: none;
+        transform: translateX(-5px);
+    }
+    
+    .back-link i {
+        margin-right: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover i {
+        transform: translateX(-3px);
+    }
+    
+    .map-container {
+        height: 400px;
+        margin-top: 2rem;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Estilos para la galería modal */
+    .modal-gallery {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+    }
+    
+    .modal-content img {
+        max-width: 100%;
+        max-height: 80vh;
+        display: block;
+        margin: 0 auto;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+    
+    .close-modal:hover {
+        color: var(--accent-color);
+    }
+    
+    .fullscreen-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(255,255,255,0.8);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    @media (max-width: 992px) {
+        .tile-gallery {
+            height: 400px;
+        }
+        
+        .thumbnail {
+            height: 100px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .tile-gallery {
+            flex-direction: column;
+            height: auto;
+        }
+        
+        .main-image {
+            height: 350px;
+        }
+        
+        .thumbnails {
+            flex-direction: row;
+            overflow-x: auto;
+            height: 100px;
+        }
+        
+        .thumbnail {
+            width: 120px;
+            height: 100%;
+            flex-shrink: 0;
+        }
+        
+        .tile-info {
+            padding: 1.5rem;
+        }
+        
+        .tile-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="tile-detail-container">
+    <div class="tile-detail">
+        <div class="tile-gallery">
+            <div class="main-image" style="background-image: url('{{ azulejo.imagen.url }}')" id="mainImage"></div>
+            <div class="thumbnails">
+                <div class="thumbnail active" 
+                     style="background-image: url('{{ azulejo.imagen.url }}')" 
+                     onclick="changeMainImage('{{ azulejo.imagen.url }}', this)"
+                     data-fullsize="{{ azulejo.imagen.url }}"></div>
+                
+                {% if azulejo.imagen_detalle %}
+                <div class="thumbnail" 
+                     style="background-image: url('{{ azulejo.imagen_detalle.url }}')" 
+                     onclick="changeMainImage('{{ azulejo.imagen_detalle.url }}', this)"
+                     data-fullsize="{{ azulejo.imagen_detalle.url }}"></div>
+                {% endif %}
+                
+                {% if azulejo.imagen_contexto %}
+                <div class="thumbnail" 
+                     style="background-image: url('{{ azulejo.imagen_contexto.url }}')" 
+                     onclick="changeMainImage('{{ azulejo.imagen_contexto.url }}', this)"
+                     data-fullsize="{{ azulejo.imagen_contexto.url }}"></div>
+                {% endif %}
+            </div>
+            
+            <button class="fullscreen-btn" onclick="openModal('{{ azulejo.imagen.url }}')">
+                <i class="bi bi-arrows-fullscreen"></i>
+            </button>
+        </div>
+        
+        <div class="tile-info">
+            <h1 class="tile-title">{{ azulejo.nombre }}</h1>
+            
+            <div class="tile-meta">
+                <span class="meta-item">
+                    <i class="bi bi-palette meta-icon"></i>
+                    {{ azulejo.get_estilo_display }}
+                </span>
+                <span class="meta-item">
+                    <i class="bi bi-clock-history meta-icon"></i>
+                    {{ azulejo.epoca }}
+                </span>
+                {% if azulejo.coleccion %}
+                <span class="meta-item">
+                    <i class="bi bi-collection meta-icon"></i>
+                    {{ azulejo.coleccion }}
+                </span>
+                {% endif %}
+                {% if azulejo.color_principal %}
+                <span class="meta-item">
+                    <i class="bi bi-droplet meta-icon"></i>
+                    <span class="color-swatch" style="background-color: {{ azulejo.color_principal }}"></span>
+                    Color principal
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="tile-description">
+                <div class="tile-section">
+                    <h3>Descripción</h3>
+                    <p>{{ azulejo.descripcion }}</p>
+                </div>
+                
+                {% if azulejo.ubicacion %}
+                <div class="tile-section">
+                    <h3>Ubicación</h3>
+                    <p>{{ azulejo.ubicacion }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="tile-section">
+                    <h3>Documentación</h3>
+                    <p>
+                        <i class="bi bi-calendar-check me-2"></i>
+                        {% if azulejo.fecha_documentacion %}
+                        Documentado el {{ azulejo.fecha_documentacion|date:"d F Y" }}
+                        {% else %}
+                        Fecha de documentación no disponible
+                        {% endif %}
+                    </p>
+                    {% if azulejo.documentador %}
+                    <p><i class="bi bi-person me-2"></i> Documentado por: {{ azulejo.documentador }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if azulejo.notas_tecnicas %}
+                <div class="tile-section">
+                    <h3>Notas técnicas</h3>
+                    <p>{{ azulejo.notas_tecnicas }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <a href="/catalogo" class="back-link">
+                <i class="bi bi-arrow-left"></i> Volver al catálogo
+            </a>
+        </div>
+    </div>
+    
+    {% comment %} {% if azulejo.latitud and azulejo.longitud %}
+    <div class="tile-section">
+        <h3>Ubicación en el mapa</h3>
+        <div class="map-container" id="miniMap"></div>
+    </div>
+    {% endif %} {% endcomment %}
+</div>
+
+<!-- Modal para imagen en pantalla completa -->
+<div class="modal-gallery" id="imageModal">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Azulejo en pantalla completa">
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"></script>
+
+<script>
+    // Cambiar imagen principal
+    function changeMainImage(src, thumb) {
+        document.getElementById('mainImage').style.backgroundImage = `url('${src}')`;
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        
+        // Actualizar botón de pantalla completa
+        document.querySelector('.fullscreen-btn').setAttribute('onclick', `openModal('${thumb.dataset.fullsize}')`);
+    }
+    
+    // Galería modal
+    function openModal(src) {
+        document.getElementById('imageModal').style.display = 'flex';
+        document.getElementById('modalImage').src = src;
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('imageModal')) {
+            closeModal();
+        }
+    }
+    
+    // Inicializar mapa pequeño si hay coordenadas
+    {% if azulejo.latitud and azulejo.longitud %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const miniMap = L.map('miniMap').setView([{{ azulejo.latitud }}, {{ azulejo.longitud }}], 16);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(miniMap);
+        
+        const azulejoIcon = L.icon({
+            iconUrl: '{% static "img/pin-48.svg" %}',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+        
+        L.marker([{{ azulejo.latitud }}, {{ azulejo.longitud }}], {
+            icon: azulejoIcon
+        }).addTo(miniMap).bindPopup("<b>{{ azulejo.nombre }}</b>");
+    });
+    {% endif %}
+</script>
+{% endblock %}

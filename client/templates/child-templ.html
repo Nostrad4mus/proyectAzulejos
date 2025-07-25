@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventuras con Azulejos</title>
+    <link rel="stylesheet" href={% static "/css/bootstrap.rtl.min.css" %}>
+    {% comment %} <link rel="stylesheet" href={% static "/css/custom.min.css" %}> {% endcomment %}
+    <link rel="stylesheet" href={% static "/css/bootsrap-icons.min.css" %}>
+    <link rel="stylesheet" href={% static "/css/prism-okaidia.css" %}>
+    
+    {% comment %} <link rel="stylesheet" href={% static "/css/_bootswatch.scss" %}>
+    <link rel="stylesheet" href={% static "/css/_variables.scss" %}> {% endcomment %}
+    <link rel="stylesheet" href={% static "/css/bootstrap.min.css" %}>
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFD166;
+            --dark: #26547C;
+        }
+        
+        * {
+            text-align: justify;
+        }
+
+        .navbar-kids {
+            background-color: var(--primary);
+            padding: 0.8rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        .nav-link i {
+            margin-right: 6px;
+        }
+        
+        .footer-kids {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-kids">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/guia-infantil">
+                Azulejos Habaneros
+            </a>
+            
+            <div class="nav-links">
+                <a class="nav-link" href="/actividad/patrones">
+                    Patrones
+                </a>
+                <a class="nav-link" href="/actividad/cuentos">
+                    Cuentos
+                </a>
+                <a class="nav-link" href="/actividad/descargables">
+                    Biblioteca
+                </a>
+                <a class="nav-link" href="/">
+                    Adultos
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %} {% endblock %}
+
+    <footer class="footer-kids">
+        <a href="/about" class="footer-link">
+            <i class="fas fa-info-circle"></i> ¿Quiénes somos?
+        </a>
+    </footer>
+</body>
+</html>

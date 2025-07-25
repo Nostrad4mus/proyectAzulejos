@@ -1,0 +1,479 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+        --btn-color: #3498db;
+        --btn-hover: #2980b9;
+        --text-color: #333;
+    }
+    
+    /* Carrusel mejorado */
+    .infinite-carousel {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto 40px;
+        padding: 20px;
+        overflow: hidden;
+    }
+    
+    .carousel-container {
+        position: relative;
+    }
+    
+    .carousel-track {
+        display: flex;
+        transition: transform 0.5s ease;
+        will-change: transform;
+    }
+    
+    .carousel-slide {
+        min-width: 33.333%;
+        padding: 0 10px;
+        box-sizing: border-box;
+        transition: opacity 0.3s ease;
+    }
+    
+    .carousel-slide img {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .carousel-slide:hover img {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .carousel-caption {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 15px;
+        border-radius: 0 0 8px 8px;
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        color: white;
+        text-align: center;
+    }
+    
+    .carousel-caption h5 {
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    /* Controles del carrusel */
+    .carousel-control {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .carousel-control:hover {
+        background: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .carousel-control.prev {
+        left: 15px;
+    }
+    
+    .carousel-control.next {
+        right: 15px;
+    }
+    
+    .carousel-control i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    /* Grid Section actualizada */
+    .grid-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .grid-item {
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        height: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: none;
+        background-color: var(--card-color);
+    }
+    
+    .grid-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+    
+    .grid-item h2, .grid-item h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .grid-item .lead {
+        color: var(--secondary-color);
+        font-weight: 500;
+        margin-bottom: 15px;
+    }
+    
+    .btn-grid {
+        width: 100%;
+        margin-top: 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        background-color: var(--btn-color);
+        border: none;
+        padding: 10px;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    
+    .btn-grid:hover {
+        background-color: var(--btn-hover);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin: 30px 0;
+        padding: 30px;
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    /* Sección de noticias */
+    .news-section {
+        background-color: var(--light-color);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin: 40px auto;
+        max-width: 1200px;
+    }
+    
+    .news-title {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .news-item {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    
+    .news-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .news-item h4 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .news-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .news-date {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+    }
+    
+    .news-summary {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .read-more {
+        color: var(--secondary-color);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .read-more:hover {
+        color: var(--btn-hover);
+        text-decoration: underline;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .carousel-slide {
+            min-width: 50%;
+        }
+        
+        .grid-item {
+            padding: 20px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .carousel-slide {
+            min-width: 100%;
+        }
+        
+        .carousel-control {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .grid-item {
+            padding: 15px;
+        }
+    }
+</style>
+
+<!-- Carrusel Infinito con Controles -->
+<div class="infinite-carousel">
+    <div class="carousel-container">
+        <div class="carousel-track" id="carouselTrack">
+            <!-- Las imágenes se agregarán dinámicamente con JavaScript -->
+        </div>
+        <button class="carousel-control prev" id="prevBtn">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="carousel-control next" id="nextBtn">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Grid Section -->
+<div class="grid-section">
+    <div class="container py-4">
+        <div class="page-header">
+            <h1 style="color:#fff">Explora el mundo de los azulejos habaneros</h1>
+            <p class="lead">Patrimonio cultural en cerámica vidriada</p>
+        </div>
+        
+        <div class="row">
+            <!-- Item 1 - Tamaño más grande -->
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="grid-item">
+                    <h2>¿Qué es un Azulejo Figurativo?</h2>
+                    <p class="lead">Los tesoros que cuentan historias en las paredes</p>
+                    <p>Descubre cómo estos azulejos especiales van más allá de patrones geométricos, mostrando escenas completas de la vida colonial, motivos religiosos o incluso fragmentos de historia cubana. Son como ventanas al pasado en cerámica vidriada.</p>
+                    <a href="/azulejos-figurativos" class="btn btn-grid">Ver ejemplos</a>
+                </div>
+            </div>
+            
+            <!-- Item 2 - Tamaño mediano -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="grid-item">
+                    <h3>Catálogo Completo</h3>
+                    <p>Nuestra colección digital de más de 500 azulejos documentados en La Habana, clasificados por época, temática y ubicación.</p>
+                    <a href="/catalogo" class="btn btn-grid">Explorar</a>
+                </div>
+            </div>
+            
+            <!-- Item 3 - Tamaño mediano -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="grid-item">
+                    <h3>Rutas Temáticas</h3>
+                    <p>Recorridos autoguiados para encontrar los conjuntos más impresionantes. ¡Incluye mapas descargables y paradas recomendadas!</p>
+                    <a href="/rutas" class="btn btn-grid">Comenzar tour</a>
+                </div>
+            </div>
+            
+            <!-- Item 4 - Ocupa todo el ancho abajo -->
+            <div class="col-12 mb-4">
+                <div class="grid-item">
+                    <h2>Bibliografía Especializada</h2>
+                    <p class="lead">Para los que quieren profundizar</p>
+                    <p>Lista comentada de libros, artículos y recursos académicos sobre cerámica arquitectónica en Cuba. Incluye acceso a documentos digitalizados raros.</p>
+                    <a href="/librery" class="btn btn-grid">Estudiar más</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de Noticias -->
+<div class="news-section">
+    <h3 class="news-title">Últimas Noticias</h3>
+    
+    {% for noticia in noticias %}
+    <div class="news-item">
+        {% if noticia.imagen %}
+        <img src="{{ noticia.imagen.url }}" alt="{{ noticia.titulo }}">
+        {% endif %}
+        <div class="news-date">{{ noticia.fecha_publicacion|date:"d F Y" }}</div>
+        <h4>{{ noticia.titulo }}</h4>
+        <p class="news-summary">{{ noticia.resumen }}</p>
+        <a href="/noticia/{{ noticia.id }}" class="read-more">Leer más</a>
+    </div>
+    {% empty %}
+    <p>No hay noticias disponibles.</p>
+    {% endfor %}
+    
+    <div class="text-center mt-3">
+        <a href="/noticias" class="btn btn-grid">Ver todas las noticias</a>
+    </div>
+</div>
+
+<script>
+    // Datos del carrusel
+    const carouselData = [
+        { img: "{% static 'img/azulejos/az1.png' %}", title: "Azulejos coloniales", desc: "Patrones geométricos del siglo XVIII" },
+        { img: "{% static 'img/azulejos/az2.png' %}", title: "Figuración cerámica", desc: "Detalle de un azulejo narrativo" },
+        { img: "{% static 'img/azulejos/az3.png' %}", title: "Estilo art déco", desc: "Fachada en el Vedado, años 1930" },
+        { img: "{% static 'img/azulejos/az4.png' %}", title: "Barroco habanero", desc: "Detalle en la Iglesia del Ángel" },
+        { img: "{% static 'img/azulejos/az5.png' %}", title: "Patio colonial", desc: "Zócalo de azulejos siglo XIX" },
+        { img: "{% static 'img/azulejos/az6.png' %}", title: "Azulejos coloniales", desc: "Patrones geométricos del siglo XVIII" },
+        { img: "{% static 'img/azulejos/az7.png' %}", title: "Figuración cerámica", desc: "Detalle de un azulejo narrativo" },
+        { img: "{% static 'img/azulejos/az8.png' %}", title: "Estilo art déco", desc: "Fachada en el Vedado, años 1930" },
+        { img: "{% static 'img/azulejos/az9.png' %}", title: "Barroco habanero", desc: "Detalle en la Iglesia del Ángel" },
+        { img: "{% static 'img/azulejos/az10.png' %}", title: "Patio colonial", desc: "Zócalo de azulejos siglo XIX" },
+        { img: "{% static 'img/azulejos/az11.png' %}", title: "Patio colonial", desc: "Zócalo de azulejos siglo XIX" },
+        { img: "{% static 'img/azulejos/az12.png' %}", title: "Patio colonial", desc: "Zócalo de azulejos siglo XIX" }
+    ];
+    
+    // Inicializar el carrusel
+    document.addEventListener('DOMContentLoaded', function() {
+        const carouselTrack = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentPosition = 0;
+        const slideWidth = 33.333;
+        let autoScrollInterval;
+        
+        // Crear slides del carrusel
+        function createSlides() {
+            carouselData.forEach((item, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `
+                    <div style="position: relative;">
+                        <img src="${item.img}" alt="${item.title}">
+                        <div class="carousel-caption">
+                            <h5>${item.title}</h5>
+                            <p>${item.desc}</p>
+                        </div>
+                    </div>
+                `;
+                carouselTrack.appendChild(slide);
+            });
+            
+            // Clonar los primeros slides al final para efecto infinito
+            for (let i = 0; i < 3; i++) {
+                const clone = carouselTrack.children[i].cloneNode(true);
+                carouselTrack.appendChild(clone);
+            }
+        }
+        
+        // Mover el carrusel
+        function moveCarousel(direction = 'next') {
+            if (direction === 'next') {
+                currentPosition -= slideWidth;
+            } else {
+                currentPosition += slideWidth;
+            }
+            
+            carouselTrack.style.transform = `translateX(${currentPosition}%)`;
+            
+            // Reiniciar posición cuando llegamos al final
+            if (currentPosition <= -100 * (carouselData.length)) {
+                setTimeout(() => {
+                    currentPosition = 0;
+                    carouselTrack.style.transition = 'none';
+                    carouselTrack.style.transform = `translateX(${currentPosition}%)`;
+                    setTimeout(() => {
+                        carouselTrack.style.transition = 'transform 0.5s ease';
+                    }, 10);
+                }, 500);
+            }
+            
+            // Reiniciar posición cuando volvemos al inicio
+            if (currentPosition > 0) {
+                setTimeout(() => {
+                    currentPosition = -100 * (carouselData.length - 3);
+                    carouselTrack.style.transition = 'none';
+                    carouselTrack.style.transform = `translateX(${currentPosition}%)`;
+                    setTimeout(() => {
+                        carouselTrack.style.transition = 'transform 0.5s ease';
+                    }, 10);
+                }, 500);
+            }
+        }
+        
+        // Iniciar desplazamiento automático
+        function startAutoScroll() {
+            autoScrollInterval = setInterval(() => {
+                moveCarousel('next');
+            }, 10000);
+        }
+        
+        // Iniciar el carrusel
+        createSlides();
+        startAutoScroll();
+        
+        // Controles manuales
+        prevBtn.addEventListener('click', () => {
+            clearInterval(autoScrollInterval);
+            moveCarousel('prev');
+            startAutoScroll();
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            clearInterval(autoScrollInterval);
+            moveCarousel('next');
+            startAutoScroll();
+        });
+        
+        // Pausar al hacer hover
+        carouselTrack.addEventListener('mouseenter', () => {
+            clearInterval(autoScrollInterval);
+        });
+        
+        // Reanudar al salir del hover
+        carouselTrack.addEventListener('mouseleave', () => {
+            startAutoScroll();
+        });
+    });
+</script>
+
+{% endblock content %}

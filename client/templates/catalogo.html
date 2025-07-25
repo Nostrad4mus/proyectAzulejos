@@ -1,0 +1,361 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+        --btn-color: #3498db;
+        --btn-hover: #2980b9;
+        --filter-bg: #ffffff;
+    }
+    
+    .catalog-header {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 4rem 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .catalog-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+    }
+    
+    .catalog-subtitle {
+        font-weight: 300;
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0 auto;
+        font-size: 1.2rem;
+    }
+    
+    .filter-section {
+        background-color: var(--filter-bg);
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+    }
+    
+    .filter-section h3 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .filter-select {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .tile-card {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .tile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .tile-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .tile-card:hover .tile-image {
+        transform: scale(1.05);
+    }
+    
+    .tile-info {
+        padding: 1.5rem;
+    }
+    
+    .tile-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .tile-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .tile-style {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+    
+    .tile-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+    
+    .page-link {
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .page-link:hover {
+        background-color: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color);
+    }
+    
+    .page-current {
+        background-color: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color);
+    }
+    
+    .empty-catalog {
+        text-align: center;
+        padding: 5rem;
+        color: #666;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .empty-catalog h3 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-clear {
+        background-color: var(--light-color);
+        color: var(--primary-color);
+        border: none;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-clear:hover {
+        background-color: #d6e0e7;
+        color: var(--primary-color);
+    }
+    
+    @media (max-width: 992px) {
+        .catalog-header {
+            padding: 3rem 1rem;
+        }
+        
+        .catalog-title {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .catalog-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+        
+        .filter-section {
+            position: static;
+        }
+        
+        .catalog-header {
+            padding: 2rem 1rem;
+        }
+        
+        .catalog-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="filter-section">
+                <h3>Filtrar</h3>
+                <form method="get">
+                    <div class="filter-group">
+                        <label class="filter-label">Temática</label>
+                        <select name="estilo" class="filter-select" onchange="this.form.submit()">
+                            <option value="">Todas las Temáticas</option>
+                            {% for estilo in estilos %}
+                            <option value="{{ estilo.0 }}" {% if request.GET.estilo == estilo.0 %}selected{% endif %}>
+                                {{ estilo.1 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Época</label>
+                        <select name="epoca" class="filter-select" onchange="this.form.submit()">
+                            <option value="">Todas las épocas</option>
+                            {% for epoca in epocas %}
+                            <option value="{{ epoca }}" {% if request.GET.epoca == epoca %}selected{% endif %}>
+                                {{ epoca }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-grid" style="width: 100%; margin-top: 1rem;">
+                        <i class="bi bi-funnel me-1"></i> Aplicar filtros
+                    </button>
+                    {% if request.GET.estilo or request.GET.epoca or request.GET.color %}
+                    <a href="/catalogo" class="btn btn-clear" style="width: 100%; margin-top: 0.5rem;">
+                        <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            {% if page_obj.object_list %}
+            <div class="catalog-grid">
+                {% for azulejo in page_obj %}
+                <div class="tile-card">
+                    <a href="catalogo/{{azulejo.id}}">
+                        <img src="{{ azulejo.imagen }}" alt="{{ azulejo.nombre }}" class="tile-image">
+                    </a>
+                    <div class="tile-info">
+                        <h3 class="tile-name">{{ azulejo.nombre }}</h3>
+                        <div class="tile-meta">
+                            <span>{{ azulejo.epoca }}</span>
+                            <span class="tile-style">{{ azulejo.get_estilo_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.estilo %}&estilo={{ request.GET.estilo }}{% endif %}{% if request.GET.epoca %}&epoca={{ request.GET.epoca }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}" class="page-link">
+                        <i class="bi bi-chevron-double-left"></i> Primera
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.estilo %}&estilo={{ request.GET.estilo }}{% endif %}{% if request.GET.epoca %}&epoca={{ request.GET.epoca }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}" class="page-link">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                {% endif %}
+                
+                <span class="page-link page-current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.estilo %}&estilo={{ request.GET.estilo }}{% endif %}{% if request.GET.epoca %}&epoca={{ request.GET.epoca }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}" class="page-link">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.estilo %}&estilo={{ request.GET.estilo }}{% endif %}{% if request.GET.epoca %}&epoca={{ request.GET.epoca }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}" class="page-link">
+                        Última <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="empty-catalog">
+                <h3>No se encontraron azulejos con los filtros seleccionados</h3>
+                <p>Intenta con otros criterios de búsqueda</p>
+                <a href="/catalogo" class="btn btn-grid">
+                    <i class="bi bi-grid me-1"></i> Ver todos los azulejos
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Efecto hover mejorado para tarjetas
+    document.querySelectorAll('.tile-card').forEach(card => {
+        const img = card.querySelector('.tile-image');
+        const originalSrc = img.src;
+        
+        card.addEventListener('mouseenter', () => {
+            if (card.dataset.hoverImg) {
+                img.src = card.dataset.hoverImg;
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            img.src = originalSrc;
+        });
+    });
+</script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+{% endblock %}

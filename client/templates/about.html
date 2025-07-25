@@ -1,0 +1,424 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+    }
+    
+    .team-header {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 6rem 1rem 4rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-header::before {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: url('{% static "img/azulejo-pattern.png" %}') repeat-x;
+        background-size: contain;
+        opacity: 0.15;
+    }
+    
+    .team-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .team-subtitle {
+        font-size: 1.3rem;
+        max-width: 800px;
+        margin: 0 auto;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .ministry-badge {
+        display: inline-block;
+        background-color: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+    
+    .ministry-badge:hover {
+        background-color: rgba(255,255,255,0.3);
+        transform: scale(1.05);
+    }
+    
+    .team-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem 4rem;
+    }
+    
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 3rem;
+    }
+    
+    .team-member {
+        background-color: var(--card-color);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .team-member:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    
+    .member-image {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        border-bottom: 4px solid var(--secondary-color);
+        transition: transform 0.5s ease;
+    }
+    
+    .team-member:hover .member-image {
+        transform: scale(1.05);
+    }
+    
+    .member-info {
+        padding: 1.8rem;
+    }
+    
+    .member-name {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .member-role {
+        color: var(--secondary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .member-specialty {
+        background-color: var(--light-color);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        display: inline-block;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .member-bio {
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .member-quote {
+        font-style: italic;
+        color: #7f8c8d;
+        padding: 1rem;
+        border-left: 3px solid var(--secondary-color);
+        margin: 1.5rem 0;
+        background-color: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--light-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .social-icon:hover {
+        background-color: var(--secondary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .contact-section {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        border-radius: 15px;
+        padding: 4rem;
+        margin-top: 4rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: url('{% static "img/ministry-logo.png" %}') no-repeat;
+        background-size: contain;
+        opacity: 0.1;
+    }
+    
+    .contact-title {
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+        font-family: 'Playfair Display', serif;
+        position: relative;
+    }
+    
+    .contact-text {
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        line-height: 1.7;
+        position: relative;
+    }
+    
+    .contact-button {
+        background-color: white;
+        color: var(--primary-color);
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+    
+    .contact-button:hover {
+        background-color: var(--light-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    
+    .team-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 4rem 0;
+        text-align: center;
+    }
+    
+    .stat-card {
+        background-color: var(--card-color);
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+    }
+    
+    /* Easter Egg */
+    .secret-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transform: translateY(150%);
+        transition: transform 0.5s ease;
+        z-index: 1000;
+    }
+    
+    .show-message {
+        transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+        .team-header {
+            padding: 4rem 1rem 3rem;
+        }
+        
+        .team-title {
+            font-size: 2rem;
+        }
+        
+        .contact-section {
+            padding: 2rem;
+        }
+        
+        .contact-section::before {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+
+<div class="team-header">
+    <h1 class="team-title">Nuestro Equipo de Conservación</h1>
+    <p class="team-subtitle">Un grupo multidisciplinario dedicado a preservar el patrimonio cerámico de Cuba</p>
+    <div class="ministry-badge">
+        <i class="bi bi-award-fill me-1"></i> Proyecto avalado por el Ministerio de Cultura de Cuba
+    </div>
+</div>
+
+<div class="team-container">
+    <div class="team-stats">
+        <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div class="stat-label">Especialistas</div>
+            <div class="stat-hover">Historiadores, restauradores y artistas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Disciplinas</div>
+            <div class="stat-hover">Desde arqueología hasta inteligencia artificial</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">500+</div>
+            <div class="stat-label">Azulejos</div>
+            <div class="stat-hover">Documentados con precisión milimétrica</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Años</div>
+            <div class="stat-hover">De trabajo apasionado</div>
+        </div>
+    </div>
+    
+    <div class="team-grid">
+        {% for miembro in miembros %}
+        <div class="team-member" {% if miembro.nombre == "Alejandro" %}onclick="showSecretMessage()"{% endif %}>
+            <img src="{{ miembro.imagen.url }}" alt="{{ miembro.nombre }}" class="member-image">
+            <div class="member-info">
+                <h3 class="member-name">{{ miembro.nombre }}</h3>
+                <p class="member-role">{{ miembro.get_rol_display }}{% if miembro.rol_secundario %} / {{ miembro.get_rol_secundario_display }}{% endif %}</p>
+                <span class="member-specialty">{{ miembro.especializacion }}</span>
+                
+                <p class="member-bio">{{ miembro.biografia|truncatewords:30 }}</p>
+                
+                {% if miembro.citacion_favorita %}
+                <div class="member-quote">"{{ miembro.citacion_favorita }}"</div>
+                {% endif %}
+                
+                <div class="social-links">
+                    {% for red, url, icon in miembro.redes_sociales %}
+                    <a href="{{ url }}" target="_blank" class="social-icon" title="{{ red|capfirst }}">
+                        <i class="{{ icon }}"></i>
+                    </a>
+                    {% endfor %}
+                    
+                    {% if miembro.email %}
+                    <a href="mailto:{{ miembro.email }}" class="social-icon" title="Email">
+                        <i class="bi bi-envelope"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="contact-section">
+        <h2 class="contact-title">¿Quieres unirte a nuestra misión?</h2>
+        <p class="contact-text">
+            Como iniciativa del Ministerio de Cultura, estamos comprometidos con la preservación del patrimonio nacional. 
+            Buscamos colaboradores apasionados por la historia, el arte y la conservación. Juntos podemos proteger 
+            estos tesoros cerámicos para las futuras generaciones.
+        </p>
+        <a href="/contacto" class="contact-button">
+            <i class="bi bi-send"></i> Enviar solicitud
+        </a>
+    </div>
+</div>
+
+<!-- Easter Egg Message -->
+<div class="secret-message" id="secretMessage">
+    <i class="bi bi-stars me-1"></i> ¡Has descubierto el azulejo secreto! Visita la Habana Vieja para encontrar más tesoros ocultos.
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<script>
+    // Easter Egg Function
+    function showSecretMessage() {
+        const message = document.getElementById('secretMessage');
+        message.classList.add('show-message');
+        
+        setTimeout(() => {
+            message.classList.remove('show-message');
+        }, 5000);
+    }
+    
+    // Ministry badge animation
+    const badge = document.querySelector('.ministry-badge');
+    let angle = 0;
+    
+    function animateBadge() {
+        angle += 0.5;
+        badge.style.transform = `rotate(${Math.sin(angle * Math.PI / 180) * 3}deg)`;
+        requestAnimationFrame(animateBadge);
+    }
+    
+    animateBadge();
+</script>
+{% endblock %}

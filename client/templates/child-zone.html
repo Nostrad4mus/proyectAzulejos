@@ -1,0 +1,492 @@
+{% extends "child-templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary: #FF6B6B; /* Color primario vibrante */
+        --secondary: #4ECDC4; /* Color secundario fresco */
+        --accent: #FFD166; /* Color de acento */
+        --dark: #26547C; /* Color para contraste */
+        --light: #FCFCFC; /* Color de fondo claro */
+        --text-dark: #333333; /* Texto oscuro */
+        --text-light: #FFFFFF; /* Texto claro */
+    }
+    
+    /* Reset y estilos base */
+    .kids-guide {
+        font-family: 'Comic Sans MS', 'Marker Felt', 'Chilanka', cursive;
+        background-color: var(--light);
+        color: var(--text-dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Header con nubes animadas */
+    .kids-header {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        padding: 2rem 1rem 8rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 0 0 50% 50% / 0 0 30% 30%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .cloud {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: float 15s infinite linear;
+    }
+    
+    .cloud-1 {
+        width: 120px;
+        height: 40px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .cloud-2 {
+        width: 80px;
+        height: 30px;
+        top: 15%;
+        right: 15%;
+        animation-delay: 3s;
+    }
+    
+    .cloud-3 {
+        width: 100px;
+        height: 35px;
+        top: 30%;
+        left: 25%;
+        animation-delay: 6s;
+    }
+    
+    @keyframes float {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(20px); }
+        100% { transform: translateX(0); }
+    }
+    
+    .title-container {
+        position: relative;
+        z-index: 10;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .main-title {
+        font-size: 3.5rem;
+        color: white;
+        text-shadow: 3px 3px 0 var(--dark);
+        margin-bottom: 1rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .subtitle {
+        font-size: 1.8rem;
+        color: var(--accent);
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 0 var(--dark);
+    }
+    
+    .character {
+        width: 200px;
+        margin: 0 auto;
+        animation: float 3s infinite ease-in-out;
+    }
+    
+    /* Sección de introducción */
+    .intro-section {
+        max-width: 1000px;
+        margin: -4rem auto 3rem;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 20;
+        text-align: center;
+    }
+    
+    .intro-text {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.8;
+    }
+    
+    .intro-highlight {
+        color: var(--primary);
+        font-weight: bold;
+    }
+    
+    /* Sección de actividades */
+    .activities-section {
+        padding: 3rem 1rem;
+        background-color: #f0f9ff;
+        background-image: url('{% static "img/patern.jpeg" %}');
+        background-size: 300px;
+        background-blend-mode: multiply;
+        opacity: 0.95;
+    }
+    
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: var(--dark);
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 0 var(--accent);
+    }
+    
+    .activities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .activity-card {
+        background-color: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 5px solid transparent;
+        text-align: center;
+    }
+    
+    .activity-card:hover {
+        transform: translateY(-10px) rotate(2deg);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        border-color: var(--accent);
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-bottom: 3px solid var(--accent);
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.8rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+    
+    .card-description {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-dark);
+    }
+    
+    .activity-button {
+        display: inline-block;
+        background-color: var(--primary);
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        transition: all 0.3s ease;
+        border: 3px solid white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .activity-button:hover {
+        background-color: var(--secondary);
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(78,205,196,0.4);
+    }
+    
+    .activity-button::after {
+        content: "→";
+        margin-left: 10px;
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    
+    .activity-button:hover::after {
+        transform: translateX(5px);
+    }
+    
+    /* Sección de personajes */
+    .characters-section {
+        padding: 4rem 1rem;
+        background: linear-gradient(135deg, var(--accent), #FFB74D);
+        text-align: center;
+    }
+    
+    .characters-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .characters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .character-card {
+        background-color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .character-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    
+    .character-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--primary);
+        background-color: white;
+    }
+    
+    .character-name {
+        font-size: 1.5rem;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .character-role {
+        font-size: 1.1rem;
+        color: var(--secondary);
+        font-weight: bold;
+    }
+    
+    /* Pie de página */
+    .kids-footer {
+        background-color: var(--dark);
+        color: white;
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+    
+    .footer-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--accent);
+    }
+    
+    .footer-text {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .parents-button {
+        display: inline-block;
+        background-color: var(--accent);
+        color: var(--dark);
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .parents-button:hover {
+        background-color: white;
+        transform: scale(1.05);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+        }
+        
+        .character {
+            width: 150px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="kids-guide">
+    <!-- Cabecera con nubes animadas -->
+    <header class="kids-header">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        
+        <div class="title-container">
+            <h1 class="main-title">Aventura entre Azulejos</h1>
+            <p class="subtitle">¡Descubre el mágico mundo de los azulejos habaneros!</p>
+            <img src="{% static 'img/azulejin/azulejin.png' %}" alt="Personaje Azulejina" class="character">
+            <img src="{% static 'img/azulejin/azulejina.png' %}" alt="Personaje Azulejina" class="character">
+        </div>
+    </header>
+    
+    <!-- Sección de introducción -->
+    <section class="intro-section">
+        <p class="intro-text">
+            ¡Hola, explorador! Somos <span class="intro-highlight">Azulejin</span> y <span class="intro-highlight">Azulejina</span>, tus guías en esta aventura. 
+            Juntos descubriremos los secretos de los coloridos azulejos que adornan nuestra ciudad. 
+            ¿Estás listo para convertirte en un <span class="intro-highlight">detective del patrimonio</span>?
+        </p>
+        <p class="intro-text">
+            En esta guía encontrarás juegos, historias y actividades para aprender mientras te diviertes. 
+            ¡Vamos a explorar!
+        </p>
+    </section>
+    
+    <!-- Sección de actividades -->
+    <section class="activities-section">
+        <h2 class="section-title">¡Elige tu Aventura!</h2>
+        
+        <div class="activities-grid">
+            <!-- Actividad 1 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity1.jpeg' %}" alt="Patrones Mágicos" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Patrones Mágicos</h3>
+                    <p class="card-description">
+                        Descubre patrones ocultos en los azulejos y crea tus propios diseños. 
+                        ¡Conviértete en un artista de patrones!
+                    </p>
+                    <a href="/actividad/patrones" class="activity-button">Jugar ahora</a>
+                </div>
+            </div>
+            
+            <!-- Actividad 2 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity2.jpeg' %}" alt="Cuentos Animados" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Cuentos Animados</h3>
+                    <p class="card-description">
+                        Viaja en el tiempo con nuestras historias animadas y descubre cómo llegaron 
+                        los azulejos a La Habana.
+                    </p>
+                    <a href="/actividad/cuentos" class="activity-button">Ver historias</a>
+                </div>
+            </div>
+            
+            <!-- Actividad 3 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity3.jpeg' %}" alt="Taller Creativo" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Taller Creativo</h3>
+                    <p class="card-description">
+                        Diseña tu propio azulejo virtual. ¡Elige colores, formas y crea una obra de arte!
+                    </p>
+                    <a href="/actividad/taller" class="activity-button">Crear azulejo</a>
+                </div>
+            </div>
+            
+            <!-- Actividad 4 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity4.jpeg' %}" alt="Búsqueda del Tesoro" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Búsqueda del Tesoro</h3>
+                    <p class="card-description">
+                        Sigue las pistas en nuestro mapa interactivo y encuentra azulejos especiales 
+                        escondidos en la ciudad.
+                    </p>
+                    <a href="/actividad/tesoro" class="activity-button">Empezar búsqueda</a>
+                </div>
+            </div>
+            
+            <!-- Actividad 5 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity5.jpeg' %}" alt="Rompecabezas" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Rompecabezas</h3>
+                    <p class="card-description">
+                        Arma rompecabezas de famosos azulejos habaneros. ¡Cuanto más rápido, más puntos ganas!
+                    </p>
+                    <a href="/actividad/rompecabezas" class="activity-button">Jugar ahora</a>
+                </div>
+            </div>
+            
+            <!-- Actividad 6 -->
+            <div class="activity-card">
+                <img src="{% static 'img/activity6.jpeg' %}" alt="Descargables" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">Zona de Descarga</h3>
+                    <p class="card-description">
+                        Imprime y colorea tus propios azulejos. ¡Descarga actividades, máscaras y más!
+                    </p>
+                    <a href="/actividad/descargables" class="activity-button">Descargar</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Sección de personajes -->
+    <section class="characters-section">
+        <h2 class="section-title">Conoce a tus Amigos Exploradores</h2>
+        
+        <div class="characters-container">
+            <div class="characters-grid">
+                <!-- Personaje 1 -->
+                <div class="character-card">
+                    <img src="{% static 'img/azulejin/azulejin2.png' %}" alt="Azulejin" class="character-icon">
+                    <h3 class="character-name">Azulejin</h3>
+                    <p class="character-role">El azulejo viajero</p>
+                    <p>¡Hola! Soy un azulejo que ha visto muchas historias. Te guiaré en esta aventura.</p>
+                </div>
+                
+                <!-- Personaje 2 -->
+                <div class="character-card">
+                    <img src="{% static 'img/azulejin/azulejina2.png' %}" alt="Azulejina" class="character-icon">
+                    <h3 class="character-name">Azulejina</h3>
+                    <p class="character-role">La niña curiosa</p>
+                    <p>Me encanta explorar La Habana. ¿Vienes conmigo a descubrir azulejos?</p>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pie de página para padres -->
+    <footer class="kids-footer">
+        <h3 class="footer-title">Para Padres y Educadores</h3>
+        <p class="footer-text">
+            Esta guía didáctica ha sido desarrollada con el asesoramiento de expertos en pedagogía infantil. 
+            Todas las actividades promueven el aprendizaje lúdico sobre patrimonio cultural, historia local, 
+            arte y geometría, adaptándose a diferentes grupos de edad.
+        </p>
+        <a href="/info-padres" class="parents-button">Más información para adultos</a>
+    </footer>
+</div>
+
+{% endblock %}

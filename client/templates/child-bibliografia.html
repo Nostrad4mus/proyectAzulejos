@@ -1,0 +1,366 @@
+{% extends "child-templ.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #FF6B6B;
+        --secondary: #4ECDC4;
+        --accent: #FFD166;
+        --dark: #26547C;
+        --light: #FCFCFC;
+        --gradient-start: #f6d365;
+        --gradient-end: #fda085;
+    }
+
+    .library-container {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+    
+    .library-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .library-title {
+        font-family: 'Comic Sans MS', cursive;
+        font-size: 3.5rem;
+        color: white;
+        text-shadow: 3px 3px 0 var(--dark);
+        margin-bottom: 1rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .character-float {
+        position: absolute;
+        animation: float 6s infinite ease-in-out;
+        width: 120px;
+    }
+    
+    .azulejin { top: -30px; left: 10%; }
+    .azulejina { top: -20px; right: 10%; }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .filter-section {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,.2);
+        margin-bottom: 2rem;
+    }
+    
+    .filter-title {
+        color: var(--dark);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .resource-card {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,.1);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,.2);
+    }
+    
+    .resource-icon {
+        font-size: 3rem;
+        text-align: center;
+        padding: 1.5rem 0;
+        background-color: var(--light);
+        color: var(--dark);
+    }
+    
+    .resource-info {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .resource-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+        font-family: 'Comic Sans MS', cursive;
+    }
+    
+    .resource-meta {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .resource-description {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        color: #555;
+    }
+    
+    .resource-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+    
+    .resource-type {
+        background-color: var(--secondary);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .download-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s;
+    }
+    
+    .download-btn:hover {
+        background-color: var(--dark);
+        transform: scale(1.05);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .page-link {
+        background-color: white;
+        color: var(--dark);
+        border: none;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .page-link:hover {
+        background-color: var(--accent);
+    }
+    
+    .page-current {
+        background-color: var(--dark);
+        color: white;
+    }
+    
+    .empty-library {
+        text-align: center;
+        padding: 3rem;
+        color: var(--dark);
+        grid-column: 1 / -1;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+    }
+    
+    .empty-library h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Decoraciones adicionales */
+    .book-corner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 50px 50px 0;
+        border-color: transparent var(--accent) transparent transparent;
+    }
+    
+    .book-mark {
+        position: absolute;
+        top: 10px;
+        right: 5px;
+        width: 20px;
+        height: 40px;
+        background-color: var(--primary);
+        transform: rotate(45deg);
+    }
+</style>
+
+<div class="library-container">
+    <div class="library-header">
+        <img src="{% static 'img/azulejin/azulejin.png' %}" class="character-float azulejin" alt="Azulejín">
+        <img src="{% static 'img/azulejin/azulejina.png' %}" class="character-float azulejina" alt="Azulejina">
+        <h1 class="library-title">Biblioteca de Azulejos</h1>
+        <p class="library-subtitle">¡Descubre increíbles recursos sobre los azulejos de La Habana!</p>
+    </div>
+
+    <div class="container">
+        <div class="filter-section">
+            <h3 class="filter-title"><i class="fas fa-filter"></i> Filtros de Búsqueda</h3>
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label for="tipo" class="form-label">Tipo de recurso</label>
+                        <select name="tipo" id="tipo" class="form-select">
+                            <option value="">Todos los tipos</option>
+                            {% for tipo in tipos %}
+                            <option value="{{ tipo.0 }}" {% if filtro_tipo == tipo.0 %}selected{% endif %}>
+                                {{ tipo.1 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-5 mb-3">
+                        <label for="area" class="form-label">Área temática</label>
+                        <select name="area" id="area" class="form-select">
+                            <option value="">Todas las áreas</option>
+                            {% for area in areas %}
+                            <option value="{{ area.0 }}" {% if filtro_area == area.0 %}selected{% endif %}>
+                                {{ area.1 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary); border: none; border-radius: 50px;">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text" style="background-color: var(--accent); color: white;">
+                                <i class="fas fa-book"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control" placeholder="Buscar por título, autor o contenido..." value="{{ busqueda }}" style="border-radius: 0 50px 50px 0;">
+                            <button class="btn btn-outline-secondary" hidden type="submit" style="border-radius: 50px 0 0 50px; border-left: none;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="resource-grid">
+            {% if page_obj.object_list %}
+                {% for recurso in page_obj %}
+                <div class="resource-card">
+                    <div class="book-corner"></div>
+                    <div class="book-mark"></div>
+                    
+                    <div class="resource-icon">
+                        <i class="{{ recurso.get_icon_class }} fa-2x"></i>
+                    </div>
+                    
+                    <div class="resource-info">
+                        <h3 class="resource-title">{{ recurso.titulo }}</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> {{ recurso.autor }}</span>
+                            <span><i class="fas fa-calendar"></i> {{ recurso.fecha_publicacion|date:"Y" }}</span>
+                            <span><i class="fas fa-file"></i> {{ recurso.get_file_size }}</span>
+                        </div>
+                        
+                        <p class="resource-description">{{ recurso.descripcion|truncatewords:20 }}</p>
+                        
+                        <div class="resource-footer">
+                            <span class="resource-type">{{ recurso.get_tipo_display }}</span>
+                            <a href="{{ recurso.archivo.url }}" class="download-btn" download>
+                                <i class="fas fa-download"></i> Descargar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-library">
+                    <h3>¡Oh no! No encontramos recursos</h3>
+                    <p>Parece que no hay nada con los filtros seleccionados. ¡Prueba con otra búsqueda!</p>
+                    <a href="/librery" class="btn" style="background-color: var(--primary); color: white; border-radius: 50px;">
+                        <i class="fas fa-book-open"></i> Ver todos los recursos
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                    <i class="fas fa-angle-double-left"></i> Primera
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                    <i class="fas fa-angle-left"></i> Anterior
+                </a>
+            {% endif %}
+            
+            <span class="page-link page-current">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                    Siguiente <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}{% if filtro_area %}&area={{ filtro_area }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" class="page-link">
+                    Última <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}

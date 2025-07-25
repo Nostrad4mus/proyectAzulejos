@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { margin-top: 20px; font-size: 0.8em; color: #777; text-align: center; }
+        .message { background-color: white; padding: 15px; border-left: 4px solid #3498db; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Gracias por contactarnos</h2>
+        </div>
+        
+        <div class="content">
+            <p>Hola {{ name }},</p>
+            <p>Hemos recibido tu mensaje con el asunto "{{ subject }}".</p>
+            <p>Nuestro equipo te responderá a la brevedad posible.</p>
+            
+            <div class="message">
+                <h3>Tu mensaje:</h3>
+                <p>{{ message|linebreaks }}</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Atentamente,<br>Equipo de Azulejos Habaneros</p>
+            <p>Proyecto del Ministerio de Cultura de Cuba</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,913 @@
+{% extends "child-templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary: #FF6B6B;
+        --secondary: #4ECDC4;
+        --accent: #FFD166;
+        --dark: #26547C;
+        --light: #FCFCFC;
+    }
+    
+    .pattern-activity {
+        font-family: 'Comic Sans MS', 'Chilanka', cursive;
+        background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        touch-action: manipulation;
+    }
+    
+    .activity-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .activity-title {
+        font-size: 3rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 0 var(--accent);
+    }
+    
+    .character-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .character-image {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--accent);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        animation: float 3s infinite ease-in-out;
+    }
+    
+    .speech-bubble {
+        background-color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        max-width: 500px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        position: relative;
+        border: 3px solid var(--secondary);
+    }
+    
+    .speech-bubble::before {
+        content: "";
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 10px solid transparent;
+        border-right-color: var(--secondary);
+    }
+    
+    .instructions {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        text-align: center;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: var(--dark);
+    }
+    
+    /* Contenedor principal */
+    .activity-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        justify-content: center;
+    }
+    
+    /* Panel de dibujo */
+    .drawing-panel {
+        flex: 1;
+        min-width: 300px;
+        background-color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .canvas-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+        border: 3px solid var(--dark);
+        border-radius: 10px;
+        overflow: hidden;
+        touch-action: none;
+    }
+    
+    .grid-canvas {
+        display: grid;
+        grid-template-columns: repeat(64, 1fr);
+        width: 100%;
+        aspect-ratio: 1/1;
+        cursor: pointer;
+        background-color: #f0f0f0;
+    }
+    
+    .grid-cell {
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.1s ease;
+        box-sizing: border-box;
+    }
+    
+    .grid-cell:hover {
+        transform: scale(1.1);
+        z-index: 10;
+    }
+    
+    /* Controles */
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .color-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .color-option {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .color-option:hover, .color-option.active {
+        transform: scale(1.2);
+        border-color: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .current-color {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid var(--dark);
+        margin-left: 10px;
+    }
+    
+    .tools {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .tool-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+    }
+    
+    .tool-btn.active {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+    
+    .tool-btn:hover {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+    
+    .tool-btn .tool-icon {
+        font-size: 1.2rem;
+    }
+    
+    /* Panel de galería */
+    .gallery-panel {
+        flex: 1;
+        min-width: 300px;
+        background-color: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .gallery-title {
+        font-size: 2rem;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .gallery-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .saved-pattern {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        position: relative;
+    }
+    
+    .saved-pattern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .pattern-preview {
+        width: 100%;
+        aspect-ratio: 1/1;
+        margin-bottom: 0.5rem;
+        border-radius: 5px;
+        border: 2px solid var(--accent);
+        overflow: hidden;
+    }
+    
+    .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        width: 100%;
+        height: 100%;
+    }
+    
+    .mini-cell {
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .pattern-name {
+        font-weight: bold;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .pattern-date {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    
+    .delete-pattern {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .saved-pattern:hover .delete-pattern {
+        opacity: 1;
+    }
+    
+    .empty-gallery {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        grid-column: 1 / -1;
+    }
+    
+    /* Animaciones */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .activity-title {
+            font-size: 2.2rem;
+        }
+        
+        .character-image {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .speech-bubble {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .speech-bubble::before {
+            left: 50%;
+            top: -20px;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-bottom-color: var(--secondary);
+        }
+        
+        .tool-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .color-option {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .current-color {
+            width: 30px;
+            height: 30px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .grid-canvas {
+            grid-template-columns: repeat(32, 1fr);
+        }
+    }
+</style>
+
+<div class="pattern-activity">
+    <div class="activity-header">
+        <h1 class="activity-title">Patrones Mágicos</h1>
+        
+        <div class="character-container">
+            <img src="{% static 'img/azulejin/azulejina2.png' %}" alt="Azulejina" class="character-image">
+            <div class="speech-bubble">
+                <p>¡Hola artista! Soy Azulejina, tu guía en el mundo de los patrones mágicos. 
+                En esta actividad podrás crear tus propios diseños de azulejos usando colores brillantes 
+                y formas increíbles. ¡Deja volar tu imaginación!</p>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p>Selecciona un color y haz clic en la cuadrícula para crear tu diseño. 
+            Puedes guardar tus creaciones y verlas en la galería. ¡Intenta hacer patrones simétricos 
+            o diseños completamente libres!</p>
+        </div>
+    </div>
+    
+    <div class="activity-container">
+        <!-- Panel de dibujo -->
+        <div class="drawing-panel">
+            <h2 class="gallery-title">Crea tu Patrón</h2>
+            
+            <div class="canvas-container">
+                <div class="grid-canvas" id="gridCanvas"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="color-picker" id="colorPicker">
+                    <!-- Los colores se generarán con JavaScript -->
+                    <div class="current-color" id="currentColor"></div>
+                </div>
+                
+                <div class="tools">
+                    <button class="tool-btn" id="pencilBtn" title="Pincel">
+                        <i class="bi bi-pencil tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="eraserBtn" title="Borrador">
+                        <i class="bi bi-eraser tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="bucketBtn" title="Balde de pintura">
+                        <i class="bi bi-bucket tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="bigBrushBtn" title="Pincel grande">
+                        <i class="bi bi-brush tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="dropperBtn" title="Cuentagotas">
+                        <i class="bi bi-eyedropper tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="saveBtn" title="Guardar patrón">
+                        <i class="bi bi-save tool-icon"></i>
+                    </button>
+                    <button class="tool-btn" id="clearBtn" title="Limpiar lienzo">
+                        <i class="bi bi-x-circle tool-icon"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <label for="patternName">Nombre de tu patrón:</label>
+                <input type="text" id="patternName" placeholder="Mi diseño mágico" class="form-control" style="margin-top: 0.5rem;">
+            </div>
+        </div>
+        
+        <!-- Panel de galería -->
+        <div class="gallery-panel">
+            <h2 class="gallery-title">Tus Patrones Guardados</h2>
+            
+            <div class="gallery-container" id="galleryContainer">
+                <!-- Los patrones guardados se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración inicial
+        const GRID_SIZE = 64;
+        const MINI_GRID_SIZE = 8;
+        
+        // Colores disponibles
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#FFD166', '#26547C', 
+            '#6A0572', '#AB83A1', '#06D6A0', '#FF9E00',
+            '#EF476F', '#118AB2', '#073B4C', '#FFC43D',
+            '#1B9AAA', '#F18F01', '#99D17B', '#5D576B',
+            '#000000', '#FFFFFF', '#D9D9D9', '#A0A0A0'
+        ];
+        
+        // Estado de la aplicación
+        let state = {
+            selectedColor: colors[0],
+            currentTool: 'pencil',
+            isDrawing: false,
+            lastCell: null,
+            gridSize: GRID_SIZE
+        };
+        
+        // Elementos del DOM
+        const elements = {
+            gridCanvas: document.getElementById('gridCanvas'),
+            colorPicker: document.getElementById('colorPicker'),
+            currentColor: document.getElementById('currentColor'),
+            galleryContainer: document.getElementById('galleryContainer'),
+            patternNameInput: document.getElementById('patternName'),
+            toolButtons: {
+                pencil: document.getElementById('pencilBtn'),
+                eraser: document.getElementById('eraserBtn'),
+                bucket: document.getElementById('bucketBtn'),
+                bigBrush: document.getElementById('bigBrushBtn'),
+                dropper: document.getElementById('dropperBtn'),
+                save: document.getElementById('saveBtn'),
+                clear: document.getElementById('clearBtn')
+            }
+        };
+        
+        // Inicialización
+        function init() {
+            setupColorPicker();
+            setupGrid();
+            setupTools();
+            updateCurrentColorDisplay();
+            loadPatternState();
+            updateGallery();
+            setupTouchEvents();
+        }
+        
+        // Configurar el selector de colores
+        function setupColorPicker() {
+            colors.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color;
+                colorOption.dataset.color = color;
+                
+                if (color === state.selectedColor) {
+                    colorOption.classList.add('active');
+                }
+                
+                colorOption.addEventListener('click', () => {
+                    state.selectedColor = color;
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    colorOption.classList.add('active');
+                    updateCurrentColorDisplay();
+                });
+                
+                elements.colorPicker.appendChild(colorOption);
+            });
+        }
+        
+        // Actualizar la visualización del color actual
+        function updateCurrentColorDisplay() {
+            elements.currentColor.style.backgroundColor = state.selectedColor;
+        }
+        
+        // Configurar la cuadrícula de dibujo
+        function setupGrid() {
+            // Ajustar tamaño de cuadrícula para móviles
+            if (window.innerWidth <= 480) {
+                state.gridSize = 32;
+            }
+            
+            // Limpiar cuadrícula existente
+            elements.gridCanvas.innerHTML = '';
+            elements.gridCanvas.style.gridTemplateColumns = `repeat(${state.gridSize}, 1fr)`;
+            
+            // Crear celdas
+            for (let i = 0; i < state.gridSize * state.gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.index = i;
+                cell.style.backgroundColor = '#FFFFFF';
+                
+                // Eventos para desktop
+                cell.addEventListener('mousedown', handleCellMouseDown);
+                cell.addEventListener('mouseover', handleCellMouseOver);
+                cell.addEventListener('mouseup', handleDrawingEnd);
+                
+                // Eventos para móvil
+                cell.addEventListener('touchstart', handleCellTouch, { passive: false });
+                cell.addEventListener('touchmove', handleCellTouch, { passive: false });
+                
+                elements.gridCanvas.appendChild(cell);
+            }
+        }
+        
+        // Configurar herramientas
+        function setupTools() {
+            // Activar herramienta por defecto
+            elements.toolButtons[state.currentTool].classList.add('active');
+            
+            // Asignar eventos a los botones de herramientas
+            Object.keys(elements.toolButtons).forEach(tool => {
+                elements.toolButtons[tool].addEventListener('click', () => {
+                    if (tool === 'save') {
+                        savePattern();
+                        return;
+                    }
+                    
+                    if (tool === 'clear') {
+                        clearCanvas();
+                        return;
+                    }
+                    
+                    // Desactivar todas las herramientas
+                    Object.values(elements.toolButtons).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Activar la herramienta seleccionada
+                    state.currentTool = tool;
+                    elements.toolButtons[tool].classList.add('active');
+                });
+            });
+        }
+        
+        // Configurar eventos táctiles
+        function setupTouchEvents() {
+            elements.gridCanvas.addEventListener('touchend', handleDrawingEnd);
+            document.addEventListener('touchcancel', handleDrawingEnd);
+        }
+        
+        // Manejadores de eventos para desktop
+        function handleCellMouseDown(e) {
+            e.preventDefault();
+            state.isDrawing = true;
+            paintCell(e.target);
+        }
+        
+        function handleCellMouseOver(e) {
+            if (state.isDrawing) {
+                e.preventDefault();
+                paintCell(e.target);
+            }
+        }
+        
+        function handleDrawingEnd() {
+            state.isDrawing = false;
+            state.lastCell = null;
+            savePatternState();
+        }
+        
+        // Manejador de eventos táctiles
+        function handleCellTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (cell && cell.classList.contains('grid-cell')) {
+                if (e.type === 'touchstart') {
+                    state.isDrawing = true;
+                }
+                
+                if (state.isDrawing) {
+                    paintCell(cell);
+                }
+            }
+        }
+        
+        // Pintar una celda según la herramienta seleccionada
+        function paintCell(cell) {
+            if (state.currentTool === 'pencil') {
+                cell.style.backgroundColor = state.selectedColor;
+            } else if (state.currentTool === 'eraser') {
+                cell.style.backgroundColor = '#FFFFFF';
+            } else if (state.currentTool === 'bucket') {
+                fillArea(cell);
+            } else if (state.currentTool === 'bigBrush') {
+                paintWithBigBrush(cell);
+            } else if (state.currentTool === 'dropper') {
+                pickColorFromCell(cell);
+            }
+            
+            state.lastCell = cell;
+        }
+        
+        // Rellenar área (algoritmo de inundación)
+        function fillArea(startCell) {
+            const targetColor = startCell.style.backgroundColor;
+            const fillColor = state.currentTool === 'bucket' ? state.selectedColor : '#FFFFFF';
+            
+            if (targetColor === fillColor) return;
+            
+            const cells = Array.from(document.querySelectorAll('.grid-cell'));
+            const startIndex = parseInt(startCell.dataset.index);
+            const gridLength = state.gridSize;
+            const stack = [startIndex];
+            const visited = new Set();
+            
+            while (stack.length > 0) {
+                const index = stack.pop();
+                
+                if (visited.has(index)) continue;
+                visited.add(index);
+                
+                const cell = cells[index];
+                if (cell.style.backgroundColor !== targetColor) continue;
+                
+                cell.style.backgroundColor = fillColor;
+                
+                // Vecinos
+                const x = index % gridLength;
+                const y = Math.floor(index / gridLength);
+                
+                if (x > 0) stack.push(index - 1); // Izquierda
+                if (x < gridLength - 1) stack.push(index + 1); // Derecha
+                if (y > 0) stack.push(index - gridLength); // Arriba
+                if (y < gridLength - 1) stack.push(index + gridLength); // Abajo
+            }
+        }
+        
+        // Pintar con pincel grande (3x3)
+        function paintWithBigBrush(centerCell) {
+            const centerIndex = parseInt(centerCell.dataset.index);
+            const gridLength = state.gridSize;
+            const x = centerIndex % gridLength;
+            const y = Math.floor(centerIndex / gridLength);
+            const color = state.selectedColor;
+            
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < gridLength && ny >= 0 && ny < gridLength) {
+                        const index = ny * gridLength + nx;
+                        const cell = document.querySelector(`.grid-cell[data-index="${index}"]`);
+                        cell.style.backgroundColor = color;
+                    }
+                }
+            }
+        }
+        
+        // Obtener color de una celda
+        function pickColorFromCell(cell) {
+            state.selectedColor = cell.style.backgroundColor;
+            updateCurrentColorDisplay();
+            
+            // Actualizar selector de color
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.dataset.color === state.selectedColor) {
+                    opt.classList.add('active');
+                }
+            });
+            
+            // Cambiar a herramienta de lápiz
+            state.currentTool = 'pencil';
+            Object.values(elements.toolButtons).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            elements.toolButtons.pencil.classList.add('active');
+        }
+        
+        // Guardar el estado actual del patrón
+        function savePatternState() {
+            const pattern = [];
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                pattern.push(cell.style.backgroundColor || '#FFFFFF');
+            });
+            localStorage.setItem('currentPattern', JSON.stringify(pattern));
+        }
+        
+        // Cargar el estado actual del patrón
+        function loadPatternState() {
+            const savedPattern = localStorage.getItem('currentPattern');
+            if (savedPattern) {
+                const pattern = JSON.parse(savedPattern);
+                document.querySelectorAll('.grid-cell').forEach((cell, index) => {
+                    if (index < pattern.length) {
+                        cell.style.backgroundColor = pattern[index];
+                    }
+                });
+            }
+        }
+        
+        // Guardar patrón en la galería
+        function savePattern() {
+            const patternName = elements.patternNameInput.value.trim() || 'Mi diseño ' + (Date.now());
+            
+            if (!patternName) {
+                alert('Por favor ingresa un nombre para tu patrón');
+                return;
+            }
+            
+            // Obtener el patrón actual
+            const pattern = [];
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                pattern.push(cell.style.backgroundColor || '#FFFFFF');
+            });
+            
+            // Guardar en localStorage
+            const savedPatterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+            savedPatterns.push({
+                id: Date.now(),
+                name: patternName,
+                pattern: pattern,
+                date: new Date().toISOString(),
+                gridSize: state.gridSize
+            });
+            
+            localStorage.setItem('savedPatterns', JSON.stringify(savedPatterns));
+            
+            // Actualizar galería
+            updateGallery();
+            
+            // Notificación
+            alert(`¡Patrón "${patternName}" guardado con éxito!`);
+        }
+        
+        // Limpiar el lienzo
+        function clearCanvas() {
+            if (confirm('¿Estás seguro de que quieres limpiar todo el lienzo?')) {
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    cell.style.backgroundColor = '#FFFFFF';
+                });
+                savePatternState();
+            }
+        }
+        
+        // Actualizar la galería
+        function updateGallery() {
+            elements.galleryContainer.innerHTML = '';
+            
+            const savedPatterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+            
+            if (savedPatterns.length === 0) {
+                elements.galleryContainer.innerHTML = `
+                    <div class="empty-gallery">
+                        <p>Todavía no has guardado ningún patrón.</p>
+                        <p>¡Crea tu primer diseño y guárdalo para verlo aquí!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Ordenar por fecha (más reciente primero)
+            savedPatterns.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            savedPatterns.forEach(patternData => {
+                const patternElement = document.createElement('div');
+                patternElement.className = 'saved-pattern';
+                patternElement.dataset.id = patternData.id;
+                
+                // Vista previa
+                const preview = document.createElement('div');
+                preview.className = 'pattern-preview';
+                
+                const miniGrid = document.createElement('div');
+                miniGrid.className = 'mini-grid';
+                
+                // Crear miniatura (muestra de 8x8)
+                const sampleSize = MINI_GRID_SIZE;
+                const step = Math.floor(patternData.gridSize / sampleSize);
+                
+                for (let y = 0; y < sampleSize; y++) {
+                    for (let x = 0; x < sampleSize; x++) {
+                        const sampleIndex = y * step * patternData.gridSize + x * step;
+                        const miniCell = document.createElement('div');
+                        miniCell.className = 'mini-cell';
+                        miniCell.style.backgroundColor = patternData.pattern[sampleIndex];
+                        miniGrid.appendChild(miniCell);
+                    }
+                }
+                
+                preview.appendChild(miniGrid);
+                
+                // Información del patrón
+                const patternInfo = document.createElement('div');
+                patternInfo.innerHTML = `
+                    <div class="pattern-name">${patternData.name}</div>
+                    <div class="pattern-date">${new Date(patternData.date).toLocaleDateString()}</div>
+                `;
+                
+                // Botón de eliminar
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-pattern';
+                deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deletePattern(patternData.id);
+                });
+                
+                patternElement.appendChild(preview);
+                patternElement.appendChild(patternInfo);
+                patternElement.appendChild(deleteBtn);
+                
+                // Cargar patrón al hacer clic
+                patternElement.addEventListener('click', () => {
+                    loadPatternFromGallery(patternData);
+                });
+                
+                elements.galleryContainer.appendChild(patternElement);
+            });
+        }
+        
+        // Cargar patrón desde la galería
+        function loadPatternFromGallery(patternData) {
+            if (confirm(`¿Quieres cargar el patrón "${patternData.name}" en el lienzo?`)) {
+                // Cambiar tamaño de cuadrícula si es necesario
+                if (patternData.gridSize !== state.gridSize) {
+                    state.gridSize = patternData.gridSize;
+                    setupGrid();
+                }
+                
+                // Aplicar patrón
+                patternData.pattern.forEach((color, idx) => {
+                    const cell = document.querySelector(`.grid-cell[data-index="${idx}"]`);
+                    if (cell) {
+                        cell.style.backgroundColor = color;
+                    }
+                });
+                
+                savePatternState();
+            }
+        }
+        
+        // Eliminar patrón
+        function deletePattern(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este patrón?')) {
+                let savedPatterns = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
+                savedPatterns = savedPatterns.filter(pattern => pattern.id !== id);
+                localStorage.setItem('savedPatterns', JSON.stringify(savedPatterns));
+                updateGallery();
+            }
+        }
+        
+        // Manejar redimensionamiento de pantalla
+        window.addEventListener('resize', () => {
+            const newGridSize = window.innerWidth <= 480 ? 32 : GRID_SIZE;
+            
+            if (newGridSize !== state.gridSize) {
+                state.gridSize = newGridSize;
+                setupGrid();
+                loadPatternState();
+            }
+        });
+        
+        // Inicializar la aplicación
+        init();
+    });
+</script>
+
+{% endblock %}

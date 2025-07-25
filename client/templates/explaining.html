@@ -1,0 +1,495 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+        --btn-color: #3498db;
+        --btn-hover: #2980b9;
+        --text-color: #333;
+        --kids-accent: #e74c3c;
+    }
+    
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .hero-section {
+        background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.9)), 
+                    url('{% static "img/azulejos-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 5rem 2rem;
+        text-align: center;
+        border-radius: 10px;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        font-weight: 300;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .section {
+        margin-bottom: 4rem;
+        background-color: var(--card-color);
+        padding: 2.5rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .section-title {
+        color: var(--primary-color);
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid var(--secondary-color);
+        display: inline-block;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .section-content {
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: var(--text-color);
+    }
+    
+    .feature-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .feature-card {
+        background-color: var(--light-color);
+        border-radius: 8px;
+        padding: 2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 4px solid var(--secondary-color);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .team-member {
+        text-align: center;
+    }
+    
+    .member-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #d1ecf1;
+        margin: 0 auto 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .member-name {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .member-role {
+        color: var(--secondary-color);
+        font-style: italic;
+        margin-bottom: 1rem;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .gallery-item {
+        height: 200px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .gallery-item:hover {
+        transform: scale(1.03);
+    }
+    
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .gallery-item:hover img {
+        transform: scale(1.1);
+    }
+    
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 3rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-top: 3rem;
+    }
+    
+    .cta-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    /* Sección infantil */
+    .kids-section {
+        background-color: #f0f9ff;
+        border-radius: 10px;
+        padding: 2.5rem;
+        margin: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .kids-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{% static "img/kids-pattern.png" %}');
+        opacity: 0.05;
+        z-index: 0;
+    }
+    
+    .kids-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .kids-title {
+        color: var(--kids-accent);
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .kids-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: center;
+    }
+    
+    .kids-image {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .kids-image:hover {
+        transform: scale(1.03);
+    }
+    
+    .kids-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .kids-features {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .kids-features li {
+        margin-bottom: 1.2rem;
+        padding-left: 2.5rem;
+        position: relative;
+        font-size: 1.1rem;
+    }
+    
+    .kids-features li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--kids-accent);
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .kids-cta {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .kids-button {
+        background-color: var(--kids-accent);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+    
+    .kids-button:hover {
+        background-color: #c0392b;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        color: white;
+    }
+    
+    @media (max-width: 992px) {
+        .kids-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .kids-image {
+            max-width: 80%;
+            margin: 0 auto;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .section {
+            padding: 1.5rem;
+        }
+        
+        .kids-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="about-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Azulejos de La Habana</h1>
+        <p class="hero-subtitle">Un proyecto para documentar, preservar y difundir el patrimonio cerámico de la capital cubana</p>
+    </section>
+    
+    <!-- Introducción -->
+    <section class="section">
+        <h2 class="section-title">Nuestro Propósito</h2>
+        <div class="section-content">
+            <p>Este proyecto nace de la necesidad de preservar la memoria histórica contenida en los azulejos que adornan edificios, patios y fachadas de La Habana. Muchas de estas joyas cerámicas se encuentran en peligro debido al deterioro natural, la falta de mantenimiento o las remodelaciones inadecuadas.</p>
+            
+            <p>Nuestra misión es crear un registro digital completo que documente estos elementos arquitectónicos, su historia, técnicas de fabricación y estado de conservación, sirviendo como recurso para investigadores, conservadores y amantes del patrimonio cultural.</p>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="{% static 'img/az1.png' %}" alt="Azulejo colonial">
+                </div>
+                <div class="gallery-item">
+                    <img src="{% static 'img/az2.png' %}" alt="Detalle cerámico">
+                </div>
+                <div class="gallery-item">
+                    <img src="{% static 'img/az3.png' %}" alt="Fachada art déco">
+                </div>
+                <div class="gallery-item">
+                    <img src="{% static 'img/az4.png' %}" alt="Patio interior">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Características -->
+    <section class="section">
+        <h2 class="section-title">Qué Ofrecemos</h2>
+        <div class="section-content">
+            <p>Este proyecto integra múltiples herramientas y recursos para el estudio y disfrute de los azulejos habaneros:</p>
+            
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-map"></i>
+                    </div>
+                    <h3 class="feature-title">Mapa Interactivo</h3>
+                    <p>Localización geográfica de más de 500 azulejos documentados en la ciudad, con información detallada sobre cada pieza.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <h3 class="feature-title">Catálogo Digital</h3>
+                    <p>Base de datos completa con fichas técnicas, imágenes de alta resolución y análisis estilísticos de cada azulejo registrado.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <h3 class="feature-title">Documentación Visual</h3>
+                    <p>Archivo fotográfico con más de 2,000 imágenes que capturan detalles, texturas y colores de estas piezas cerámicas.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Rutas Temáticas</h3>
+                    <p>Itinerarios autoguiados para descubrir conjuntos de azulejos por estilos arquitectónicos o periodos históricos.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-archive"></i>
+                    </div>
+                    <h3 class="feature-title">Biblioteca Especializada</h3>
+                    <p>Colección de recursos bibliográficos sobre cerámica arquitectónica, técnicas de restauración y conservación.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h3 class="feature-title">Comunidad</h3>
+                    <p>Espacio para que especialistas y entusiastas compartan conocimientos y experiencias sobre este patrimonio.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Sección Infantil -->
+    <section class="kids-section">
+        <div class="kids-content">
+            <h2 class="kids-title">¡Descubre el Mundo de los Azulejos con Nuestra Guía Infantil!</h2>
+            
+            <div class="kids-grid">
+                <div>
+                    <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                        Hemos creado una experiencia educativa especialmente diseñada para los más pequeños. 
+                        "Aventura entre Azulejos" es una guía multimedia interactiva que lleva a los niños 
+                        en un viaje fascinante por la historia y el arte de los azulejos habaneros.
+                    </p>
+                    
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem; font-family: 'Playfair Display', serif;">¿Qué encontrarán en esta aventura?</h3>
+                    
+                    <ul class="kids-features">
+                        <li><strong>Juegos interactivos</strong> para identificar patrones y colores</li>
+                        <li><strong>Historias animadas</strong> sobre el origen de los azulejos</li>
+                        <li><strong>Talleres virtuales</strong> donde pueden crear sus propios diseños</li>
+                        <li><strong>Búsquedas del tesoro</strong> por los lugares más emblemáticos</li>
+                        <li><strong>Personajes divertidos</strong> que explican conceptos complejos</li>
+                        <li><strong>Actividades descargables</strong> para colorear y crear</li>
+                    </ul>
+                </div>
+                
+                <div class="kids-image">
+                    <img src="{% static 'img/kids-activity.jpg' %}" alt="Niños aprendiendo sobre azulejos">
+                </div>
+            </div>
+            
+            <div class="kids-cta">
+                <p style="font-size: 1.2rem; margin-bottom: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    Esta guía ha sido desarrollada con el asesoramiento de pedagogos infantiles para garantizar 
+                    que los niños aprendan mientras se divierten, fomentando su creatividad y su aprecio por 
+                    el patrimonio cultural desde temprana edad.
+                </p>
+                
+                <a href="/guia-infantil" class="kids-button">
+                    <i class="bi bi-joystick"></i> Comenzar la aventura
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historia -->
+    <section class="section">
+        <h2 class="section-title">La Historia Detrás de los Azulejos</h2>
+        <div class="section-content">
+            <p>Los azulejos llegaron a Cuba con los colonizadores españoles, heredando técnicas de la tradición árabe-andaluza. Durante los siglos XVIII y XIX, se convirtieron en elementos distintivos de la arquitectura habanera, tanto en edificios religiosos como civiles.</p>
+            
+            <p>En el siglo XX, especialmente durante el período art déco (1930-1950), los azulejos adquirieron nuevos diseños y funciones, incorporando motivos geométricos y figurativos que reflejaban las tendencias artísticas internacionales.</p>
+            
+            <p>Hoy, estos azulejos constituyen un testimonio material de:</p>
+            <ul>
+                <li>Los intercambios culturales entre Cuba, España y otros países</li>
+                <li>La evolución de las técnicas artesanales e industriales</li>
+                <li>Los gustos estéticos de diferentes épocas históricas</li>
+                <li>La identidad arquitectónica de La Habana</li>
+            </ul>
+        </div>
+    </section>
+    
+    <!-- CTA -->
+    <section class="cta-section">
+        <h2 class="cta-title">¿Quieres contribuir al proyecto?</h2>
+        <p style="max-width: 800px; margin: 0 auto 2rem; font-size: 1.1rem;">
+            Si tienes fotos, información o conocimientos sobre azulejos habaneros que no aparecen en nuestro archivo, nos encantaría contar con tu colaboración.
+        </p>
+        <a href="/contacto" class="btn btn-light btn-lg" style="font-weight: 600;">
+            <i class="bi bi-envelope me-2"></i> Contáctanos
+        </a>
+    </section>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+{% endblock %}

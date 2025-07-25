@@ -1,0 +1,263 @@
+{% extends "child-templ.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #FF6B6B;
+        --secondary: #4ECDC4;
+        --accent: #FFD166;
+        --dark: #26547C;
+        --light: #FCFCFC;
+        --gradient-start: #f6d365;
+        --gradient-end: #fda085;
+    }
+
+    .treasure-hunt-container {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+    .treasure-header { text-align:center; margin-bottom:2rem; position:relative; }
+    .treasure-title {
+        font-family:'Comic Sans MS', cursive; font-size:3.5rem; color:white;
+        text-shadow:3px 3px 0 var(--dark); margin-bottom:1rem;
+        animation:bounce 2s infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .character-float{position:absolute;animation:float 6s infinite ease-in-out;width:120px}
+    .azulejin{top:-30px;left:10%}
+    .azulejina{top:-20px;right:10%}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+    .game-container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,.9);border-radius:20px;padding:2rem;box-shadow:0 15px 35px rgba(0,0,0,.2)}
+    .game-grid{display:grid;grid-template-columns:1fr;gap:2rem}
+    @media(min-width:992px){.game-grid{grid-template-columns:1fr 1fr}}
+
+    .tile-display{background:white;border-radius:20px;padding:1.5rem;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+    .tile-image{max-width:100%;max-height:300px;border-radius:15px;margin-bottom:1rem;border:5px solid var(--accent)}
+    .tile-title{font-size:2rem;color:var(--dark);margin-bottom:.5rem}
+    .tile-info{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-bottom:1.5rem}
+    .info-badge{background:var(--secondary);color:white;padding:.5rem 1rem;border-radius:50px;font-size:.9rem}
+    .tile-hint{background:#e9f7fe;padding:1.5rem;border-radius:15px;margin-top:1rem;font-style:italic;position:relative}
+    .tile-hint::before{content:"💡";position:absolute;left:-15px;top:-15px;font-size:2rem;background:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(0,0,0,.1)}
+
+    .map-container{background:white;border-radius:20px;overflow:hidden;height:500px;position:relative}
+    #map{width:100%;height:100%}
+
+    .game-controls{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem}
+    .guess-button{flex:1;background:var(--primary);color:white;border:none;border-radius:50px;padding:1rem;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.5rem;min-width:200px}
+    .guess-button:hover{background:var(--dark);transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,.2)}
+    .skip-button{background:#e0e0e0;color:#333}
+
+    .score-container{background:var(--dark);color:white;padding:1rem 2rem;border-radius:50px;font-size:1.5rem;font-weight:bold;margin-top:1.5rem;text-align:center}
+
+    .result-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center}
+    .modal-content{background:white;border-radius:20px;padding:2rem;max-width:500px;width:90%;text-align:center;animation:modalAppear .5s ease-out;position:relative}
+    @keyframes modalAppear{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-title{font-size:2rem;color:var(--dark);margin-bottom:1rem}
+    .distance-info{font-size:1.5rem;margin-bottom:1rem}
+    .distance-value{font-weight:bold;color:var(--primary)}
+    .direction-info{font-size:1.2rem;margin-bottom:1rem;color:#555}
+    .points-earned{font-size:1.8rem;font-weight:bold;color:var(--secondary);margin-bottom:1.5rem}
+    .next-button,.retry-button{background:var(--secondary);color:white;padding:1rem 2rem;border:none;border-radius:50px;font-size:1.2rem;font-weight:bold;cursor:pointer;margin:.3rem}
+    .next-button:hover,.retry-button:hover{background:#3bb5aa}
+    .hot-cold{font-size:1.5rem;margin:.5rem 0}
+    .close-modal{position:absolute;top:15px;right:15px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888; display: none;}
+    .close-modal:hover{color:#333}
+</style>
+
+<div class="treasure-hunt-container">
+    <div class="treasure-header">
+        <img src="{% static 'img/azulejin/azulejin.png' %}" class="character-float azulejin" alt="Azulejín">
+        <img src="{% static 'img/azulejin/azulejina.png' %}" class="character-float azulejina" alt="Azulejina">
+        <h1 class="treasure-title">Búsqueda del Tesoro</h1>
+        <p class="treasure-subtitle">¿Puedes encontrar la ubicación de este azulejo?</p>
+    </div>
+
+    <div class="game-container">
+        <div class="game-grid">
+            <div class="tile-display">
+                <img id="tile-image" src="" alt="Azulejo" class="tile-image">
+                <h2 id="tile-title" class="tile-title"></h2>
+                <div class="tile-info">
+                    <span id="tile-style" class="info-badge"></span>
+                    <span id="tile-era" class="info-badge"></span>
+                    <span id="tile-location" class="info-badge"></span>
+                </div>
+                <div class="tile-hint"><p id="tile-hint-text"></p></div>
+            </div>
+            <div class="map-container"><div id="map"></div></div>
+        </div>
+
+        <div class="game-controls">
+            <button id="skip-button" class="guess-button skip-button">
+                <i class="fas fa-forward"></i> Saltar Azulejo
+            </button>
+            <button id="submit-guess" class="guess-button">
+                <i class="fas fa-map-marker-alt"></i> Confirmar Ubicación
+            </button>
+        </div>
+
+        <div class="score-container">
+            Puntuación: <span id="score">0</span> puntos
+        </div>
+    </div>
+</div>
+
+<!-- Modal de resultados -->
+<div id="result-modal" class="result-modal">
+    <div class="modal-content">
+        <button class="close-modal" id="close-modal">&times;</button>
+        <h2 class="modal-title">¡Resultado!</h2>
+        <p class="distance-info">Estuviste a <span id="distance-value" class="distance-value">0</span> metros.</p>
+        <p id="direction-info" class="direction-info"></p>
+        <p id="hot-cold" class="hot-cold"></p>
+        <p class="points-earned">+<span id="points-earned">0</span> puntos</p>
+        <button id="next-button" class="next-button" style="display:none">Siguiente Azulejo</button>
+        <button id="retry-button" class="retry-button" style="display:none">Seguir intentando</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+let map, marker, selectedLocation, currentTile, score = 0;
+const HAVANA_CENTER = [23.1136, -82.3666];
+
+function initMap() {
+    map = L.map('map').setView(HAVANA_CENTER, 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    map.on('click', e=>{
+        if(marker) map.removeLayer(marker);
+        marker = L.marker(e.latlng).addTo(map);
+        selectedLocation = e.latlng;
+    });
+}
+
+function loadRandomTile() {
+    document.getElementById('loader')?.removeAttribute('style');
+    fetch('/actividad/tesoro/get_random_tile/').then(r=>r.json()).then(data=>{
+        currentTile = data;
+        document.getElementById('tile-image').src = currentTile.imagen_principal;
+        document.getElementById('tile-title').textContent = currentTile.titulo || currentTile.nombre;
+        document.getElementById('tile-style').textContent = 'Estilo: '+currentTile.estilo_display;
+        document.getElementById('tile-era').textContent = 'Época: '+currentTile.epoca;
+        document.getElementById('tile-location').textContent = 'Ubicación: '+currentTile.ubicacion;
+        document.getElementById('tile-hint-text').textContent = (currentTile.descripcion||'').substring(0,100)+'...';
+
+        if(marker) {map.removeLayer(marker); marker = null;}
+        selectedLocation = null;
+        document.getElementById('loader').style.display='none';
+    });
+}
+
+function calcDistance(lat1,lon1,lat2,lon2){
+    const R=6371e3, toRad=x=>x*Math.PI/180;
+    const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+    const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getDirection(lat1, lon1, lat2, lon2) {
+    const dLon = lon2 - lon1;
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    const brng = Math.atan2(y, x);
+    const angle = (brng * 180 / Math.PI + 360) % 360;
+    
+    if (angle >= 22.5 && angle < 67.5) return "noroeste";
+    if (angle >= 67.5 && angle < 112.5) return "oeste";
+    if (angle >= 112.5 && angle < 157.5) return "suroeste";
+    if (angle >= 157.5 && angle < 202.5) return "sur";
+    if (angle >= 202.5 && angle < 247.5) return "sureste";
+    if (angle >= 247.5 && angle < 292.5) return "este";
+    if (angle >= 292.5 && angle < 337.5) return "noreste";
+    return "norte";
+}
+
+function calcPoints(d){
+    if(d<10) return 5000;
+    if(d<25) return 3000;
+    if(d<50) return 1500;
+    if(d<100) return 750;
+    if(d<200) return 250;
+    return 0;
+}
+
+function hotCold(d){
+    if(d<10) return {emoji:'🏆', txt:'¡Perfecto!'};
+    if(d<500) return {emoji:'🔥', txt:'¡Hirviendo!'};
+    if(d<1000) return {emoji:'🔥', txt:'¡Muy caliente!'};
+    if(d<1500) return {emoji:'🥵', txt:'Caliente'};
+    if(d<2000) return {emoji:'🙂', txt:'Tibio'};
+    if(d<3000) return {emoji:'🥶', txt:'Frío'};
+    if(d<5000) return {emoji:'❄️', txt:'Muy frío'};
+    return {emoji:'🧊', txt:'Congelado'};
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+    initMap();
+    loadRandomTile();
+
+    document.getElementById('submit-guess').addEventListener('click', ()=>{
+        if(!selectedLocation || !currentTile) return;
+        const dist = calcDistance(selectedLocation.lat, selectedLocation.lng,
+                                parseFloat(currentTile.latitud), parseFloat(currentTile.longitud));
+        const pts = calcPoints(dist);
+        score += pts;
+
+        if (dist<200) {
+            // Marcador real
+            L.marker([currentTile.latitud, currentTile.longitud], {
+            icon: L.divIcon({className:'real-loc',html:'<div style="background:#4ECDC4;width:20px;height:20px;border-radius:50%;border:2px solid #fff"></div>',iconSize:[24,24]})
+        }).addTo(map);
+        }
+
+        const {emoji,txt}=hotCold(dist);
+        document.getElementById('distance-value').textContent = Math.round(dist);
+        document.getElementById('hot-cold').innerHTML = `${emoji} <strong>${txt}</strong>`;
+        document.getElementById('points-earned').textContent = pts;
+        document.getElementById('score').textContent = score;
+
+        const victory = dist < 200;
+        document.getElementById('next-button').style.display   = victory ? 'inline-block' : 'none';
+        document.getElementById('retry-button').style.display  = victory ? 'none'        : 'inline-block';
+        document.getElementById('result-modal').style.display  = 'flex';
+        
+        // Mostrar dirección si no acertó
+        if (!victory) {
+            const direction = getDirection(
+                selectedLocation.lat, selectedLocation.lng,
+                parseFloat(currentTile.latitud), parseFloat(currentTile.longitud)
+            );
+            document.getElementById('direction-info').textContent = 
+                `El azulejo está a ${Math.round(dist)} metros al ${direction} de tu ubicación.`;
+        } else {
+            document.getElementById('direction-info').textContent = '';
+        }
+    });
+
+    document.getElementById('retry-button').addEventListener('click', ()=>{
+        document.getElementById('result-modal').style.display='none';
+    });
+    
+    document.getElementById('next-button').addEventListener('click', ()=>{
+        document.getElementById('result-modal').style.display='none';
+        loadRandomTile();
+    });
+    
+    document.getElementById('skip-button').addEventListener('click', loadRandomTile);
+    
+    document.getElementById('close-modal').addEventListener('click', ()=>{
+        document.getElementById('result-modal').style.display='none';
+    });
+});
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}

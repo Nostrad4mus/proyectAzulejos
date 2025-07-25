@@ -1,0 +1,187 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #4a6fa5;
+        --card-color: #d1ecf1;
+        --btn-color: #29abe0;
+        --btn-hover: #1e8bc3;
+        --text-color: #333;
+        --news-bg: #f8f9fa;
+    }
+    
+    /* Estilos existentes... */
+    
+    /* Nueva sección de noticias */
+    .news-section {
+        background-color: var(--news-bg);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .news-title {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--btn-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .news-item {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    
+    .news-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .news-item h4 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+    
+    .news-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .news-date {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+    }
+    
+    .news-summary {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .read-more {
+        color: var(--btn-color);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .read-more:hover {
+        color: var(--btn-hover);
+        text-decoration: underline;
+    }
+    
+    /* Reorganización del layout */
+    .main-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    
+    .content-grid {
+        flex: 2;
+        min-width: 300px;
+    }
+    
+    .content-news {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    @media (max-width: 992px) {
+        .main-content {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<!-- Carrusel (mantener igual) -->
+<div class="infinite-carousel">
+    <!-- ... contenido del carrusel ... -->
+</div>
+
+<!-- Contenedor principal reorganizado -->
+<div class="grid-section">
+    <div class="container py-4">
+        <h2 class="text-center mb-4">Explora el mundo de los azulejos habaneros</h2>
+        
+        <div class="main-content">
+            <!-- Sección del grid (izquierda) -->
+            <div class="content-grid">
+                <div class="row">
+                    <!-- Item 1 - Tamaño más grande -->
+                    <div class="col-lg-12 mb-4">
+                        <div class="grid-item">
+                            <h2>¿Qué es un Azulejo Figurativo?</h2>
+                            <p class="lead">Los tesoros que cuentan historias en las paredes</p>
+                            <p>Descubre cómo estos azulejos especiales van más allá de patrones geométricos, mostrando escenas completas de la vida colonial, motivos religiosos o incluso fragmentos de historia cubana. Son como ventanas al pasado en cerámica vidriada.</p>
+                            <a href="/azulejos-figurativos" class="btn btn-grid">Ver ejemplos</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 y 3 - ahora en fila -->
+                    <div class="col-md-6 mb-4">
+                        <div class="grid-item">
+                            <h3>Catálogo Completo</h3>
+                            <p>Nuestra colección digital de más de 500 azulejos documentados en La Habana, clasificados por época, estilo y ubicación.</p>
+                            <a href="/catalogo" class="btn btn-grid">Explorar</a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="grid-item">
+                            <h3>Rutas Temáticas</h3>
+                            <p>Recorridos autoguiados para encontrar los conjuntos más impresionantes. ¡Incluye mapas descargables y paradas recomendadas!</p>
+                            <a href="/rutas" class="btn btn-grid">Comenzar tour</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 4 - Ocupa todo el ancho abajo -->
+                    <div class="col-12 mb-4">
+                        <div class="grid-item">
+                            <h2>Bibliografía Especializada</h2>
+                            <p class="lead">Para los que quieren profundizar</p>
+                            <p>Lista comentada de libros, artículos y recursos académicos sobre cerámica arquitectónica en Cuba. Incluye acceso a documentos digitalizados raros.</p>
+                            <a href="/bibliografia" class="btn btn-grid">Estudiar más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nueva sección de noticias (derecha) -->
+            <div class="content-news">
+                <div class="news-section">
+                    <h3 class="news-title">Últimas Noticias</h3>
+                    
+                    {% for noticia in noticias %}
+                    <div class="news-item">
+                        {% if noticia.imagen %}
+                        <img src="{{ noticia.imagen.url }}" alt="{{ noticia.titulo }}">
+                        {% endif %}
+                        <div class="news-date">{{ noticia.fecha_publicacion|date:"d F Y" }}</div>
+                        <h4>{{ noticia.titulo }}</h4>
+                        <p class="news-summary">{{ noticia.resumen }}</p>
+                        <a href="qlo" class="read-more">Leer más</a>
+                    </div>
+                    {% empty %}
+                    <p>No hay noticias disponibles.</p>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="qlo2" class="btn btn-grid">Ver todas las noticias</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts (mantener igual) -->
+{% endblock %}

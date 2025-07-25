@@ -1,0 +1,232 @@
+{% extends "child-templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    .taller-detalle-container {
+        background: linear-gradient(135deg, #FFD166, #FF9E00);
+        min-height: 100vh;
+        padding: 3rem 0;
+    }
+    
+    .taller-detalle-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .taller-detalle-title {
+        font-family: 'Comic Sans MS', cursive;
+        font-size: 3rem;
+        color: white;
+        text-shadow: 3px 3px 0 #26547C;
+        margin-bottom: 1rem;
+    }
+    
+    .taller-main {
+        background-color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .taller-video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        border-radius: 15px;
+        background-color: #f8f9fa;
+    }
+    
+    .taller-video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .materiales-section {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .material-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .material-icon {
+        color: #FF6B6B;
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .pasos-section {
+        margin-bottom: 2rem;
+    }
+    
+    .paso-item {
+        display: flex;
+        margin-bottom: 1.5rem;
+    }
+    
+    .paso-numero {
+        background-color: #26547C;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .paso-contenido {
+        flex-grow: 1;
+    }
+    
+    .taller-footer {
+        text-align: center;
+        padding-top: 2rem;
+    }
+    
+    .btn-taller {
+        background-color: #FF6B6B;
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: bold;
+        margin: 0 0.5rem;
+        transition: all 0.3s;
+    }
+    
+    .btn-taller:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn-compartir {
+        background-color: #4ECDC4;
+    }
+    
+    @media (max-width: 768px) {
+        .taller-detalle-title {
+            font-size: 2.2rem;
+        }
+    }
+</style>
+
+<div class="taller-detalle-container">
+    <div class="container">
+        <div class="taller-detalle-header">
+            <h1 class="taller-detalle-title">{{ taller.titulo }}</h1>
+            <p class="lead" style="color: white;">Con {{ taller.get_personaje_principal_display }}</p>
+        </div>
+        
+        <div class="taller-main">
+            {% if taller.video_tutorial %}
+            <div class="taller-video-container">
+                <iframe src="{{ taller.video_tutorial.url }}" allowfullscreen></iframe>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 style="color: #26547C;">Descripción del taller</h3>
+                    <p>{{ taller.descripcion }}</p>
+                    
+                    <div class="pasos-section">
+                        <h3 style="color: #26547C;">Pasos para crear tu azulejo</h3>
+                        <div class="paso-item">
+                            <div class="paso-numero">1</div>
+                            <div class="paso-contenido">
+                                <p>Prepara todos tus materiales en un espacio limpio y ordenado.</p>
+                            </div>
+                        </div>
+                        <!-- Los pasos podrían venir de un campo del modelo o ser estáticos -->
+                        <div class="paso-item">
+                            <div class="paso-numero">2</div>
+                            <div class="paso-contenido">
+                                <p>Sigue las instrucciones del video paso a paso.</p>
+                            </div>
+                        </div>
+                        <div class="paso-item">
+                            <div class="paso-numero">3</div>
+                            <div class="paso-contenido">
+                                <p>Déjate inspirar por los diseños tradicionales pero añade tu toque personal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="materiales-section">
+                        <h4 style="color: #26547C; margin-bottom: 1.5rem;">
+                            <i class="bi bi-tools"></i> Materiales necesarios
+                        </h4>
+                        
+                        <ul style="list-style: none; padding-left: 0;">
+                            {% for material in materiales %}
+                            <li class="material-item">
+                                <i class="bi bi-check-circle-fill material-icon"></i>
+                                <span>{{ material }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div style="margin-top: 1.5rem; padding: 1rem; background-color: #e9f7fe; border-radius: 10px;">
+                            <p style="margin-bottom: 0.5rem; font-weight: bold; color: #26547C;">
+                                <i class="bi bi-info-circle-fill"></i> Nivel de dificultad:
+                            </p>
+                            <div style="display: flex; align-items: center;">
+                                <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: {{ taller.get_nivel_color }}; margin-right: 10px;"></span>
+                                <span>{{ taller.get_nivel_dificultad_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="taller-footer">
+            <a href="/actividad/taller" class="btn btn-taller">
+                <i class="bi bi-arrow-left"></i> Ver más talleres
+            </a>
+            <button class="btn btn-taller btn-compartir" onclick="compartirTaller()">
+                <i class="bi bi-share-fill"></i> Compartir
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function compartirTaller() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Taller: {{ taller.titulo }}',
+                text: 'Mira este taller creativo de azulejos con {{ taller.get_personaje_principal_display }}',
+                url: window.location.href,
+            })
+            .catch(error => console.log('Error al compartir:', error));
+        } else {
+            // Fallback para navegadores que no soportan Web Share API
+            alert('Comparte este taller copiando el enlace: ' + window.location.href);
+        }
+    }
+</script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+{% endblock %}

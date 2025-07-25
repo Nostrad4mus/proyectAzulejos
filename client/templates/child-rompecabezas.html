@@ -1,0 +1,667 @@
+{% extends "child-templ.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #FF6B6B;
+        --secondary: #4ECDC4;
+        --accent: #FFD166;
+        --dark: #26547C;
+        --light: #FCFCFC;
+        --gradient-start: #f6d365;
+        --gradient-end: #fda085;
+    }
+
+    .puzzle-container {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    .puzzle-header { 
+        text-align:center; 
+        margin-bottom:1.5rem; 
+        position:relative; 
+    }
+    .puzzle-title {
+        font-family:'Comic Sans MS', cursive; 
+        font-size:2.5rem; 
+        color:white;
+        text-shadow:3px 3px 0 var(--dark); 
+        margin-bottom:0.5rem;
+        animation:bounce 2s infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .character-float{
+        position:absolute;
+        animation:float 6s infinite ease-in-out;
+        width:80px;
+        display: none; /* Ocultamos en móvil por espacio */
+    }
+    .azulejin{top:-20px;left:5%}
+    .azulejina{top:-15px;right:5%}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+    .game-container{
+        max-width:1200px;
+        margin:0 auto;
+        background:rgba(255,255,255,.9);
+        border-radius:20px;
+        padding:1rem;
+        box-shadow:0 15px 35px rgba(0,0,0,.2);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .puzzle-info {
+        background: white;
+        border-radius: 20px;
+        padding: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    }
+    
+    .puzzle-display {
+        position: relative;
+        width: 100%;
+        height: 300px; /* Altura más pequeña para móviles */
+        background: #f5f5f5;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 5px solid var(--accent);
+        touch-action: none; /* Importante para eventos táctiles */
+    }
+    
+    #puzzle-canvas {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+        touch-action: none;
+    }
+    
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .timer-container {
+        background: var(--dark);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all .3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        white-space: nowrap;
+    }
+    
+    .btn:hover {
+        background: var(--dark);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,.2);
+    }
+    
+    .btn-skip {
+        background: #e0e0e0;
+        color: #333;
+    }
+    
+    .tile-details {
+        display: none;
+        background: white;
+        border-radius: 20px;
+        padding: 1rem;
+        margin-top: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    }
+    
+    .tile-image {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 15px;
+        margin-bottom: 0.5rem;
+        border: 5px solid var(--accent);
+    }
+    
+    .tile-title {
+        font-size: 1.5rem;
+        color: var(--dark);
+        margin-bottom: .5rem;
+    }
+    
+    .tile-info {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-badge {
+        background: var(--secondary);
+        color: white;
+        padding: .3rem .8rem;
+        border-radius: 50px;
+        font-size: .8rem;
+    }
+    
+    .tile-description {
+        background: #e9f7fe;
+        padding: 1rem;
+        border-radius: 15px;
+        margin-top: 0.5rem;
+        font-style: italic;
+        position: relative;
+        font-size: 0.9rem;
+    }
+    
+    .tile-description::before {
+        content: "💡";
+        position: absolute;
+        left: -10px;
+        top: -10px;
+        font-size: 1.5rem;
+        background: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,.1);
+    }
+    
+    .completion-message {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 20px;
+        text-align: center;
+        z-index: 100;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 400px;
+    }
+    
+    .completion-title {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+    
+    .completion-time {
+        font-size: 1.2rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+    
+    /* Estilos para tablets y pantallas más grandes */
+    @media(min-width: 768px) {
+        .puzzle-title {
+            font-size:3rem;
+        }
+        .character-float {
+            display: block;
+            width:100px;
+        }
+        .puzzle-display {
+            height:400px;
+        }
+    }
+    
+    @media(min-width: 992px) {
+        .game-container {
+            grid-template-columns: 1fr 1fr;
+            padding:2rem;
+        }
+        .puzzle-header {
+            margin-bottom:2rem;
+        }
+        .puzzle-display {
+            height:500px;
+        }
+        .character-float {
+            width:120px;
+        }
+    }
+</style>
+
+<div class="puzzle-container">
+    <div class="puzzle-header">
+        <img src="{% static 'img/azulejin/azulejin.png' %}" class="character-float azulejin" alt="Azulejín">
+        <img src="{% static 'img/azulejin/azulejina.png' %}" class="character-float azulejina" alt="Azulejina">
+        <h1 class="puzzle-title">Rompecabezas de Azulejos</h1>
+        <p class="puzzle-subtitle">¿Puedes reconstruir este azulejo histórico?</p>
+    </div>
+
+    <div class="game-container">
+        <div>
+            <div class="puzzle-display">
+                <canvas id="puzzle-canvas"></canvas>
+                <div class="completion-message" id="completion-message">
+                    <h2 class="completion-title">¡Felicidades!</h2>
+                    <p class="completion-time">Tiempo: <span id="final-time">0:00</span></p>
+                    <button class="btn" id="next-puzzle-btn">Siguiente Azulejo</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="timer-container">
+                    <i class="fas fa-clock"></i>
+                    <span id="timer">0:00</span>
+                </div>
+                <button id="skip-button" class="btn btn-skip">
+                    <i class="fas fa-forward"></i> Saltar Azulejo
+                </button>
+            </div>
+        </div>
+        
+        <div class="puzzle-info">
+            <h2>Instrucciones:</h2>
+            <ol>
+                <li>Toca y arrastra las piezas para moverlas</li>
+                <li>Cuando dos piezas estén en la posición correcta, se unirán automáticamente</li>
+                <li>El cronómetro comenzará cuando muevas la primera pieza</li>
+                <li>¡Completa el rompecabezas lo más rápido que puedas!</li>
+            </ol>
+            
+            <div class="tile-details" id="tile-details">
+                <img id="tile-image" src="" alt="Azulejo completo" class="tile-image">
+                <h2 id="tile-title" class="tile-title"></h2>
+                <div class="tile-info">
+                    <span id="tile-style" class="info-badge"></span>
+                    <span id="tile-era" class="info-badge"></span>
+                    <span id="tile-location" class="info-badge"></span>
+                </div>
+                <div class="tile-description">
+                    <p id="tile-description-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let currentTile = null;
+let canvas, ctx;
+let pieces = [];
+let selectedPiece = null;
+let offset = {x: 0, y: 0};
+let timerInterval;
+let seconds = 0;
+let isTimerRunning = false;
+let isPuzzleComplete = false;
+const GRID_SIZE = 4; // 4x4 grid (16 pieces)
+
+class PuzzlePiece {
+    constructor(img, sx, sy, sw, sh, dx, dy, dw, dh, row, col) {
+        this.img = img;
+        this.sx = sx;
+        this.sy = sy;
+        this.sw = sw;
+        this.sh = sh;
+        this.dx = dx;
+        this.dy = dy;
+        this.dw = dw;
+        this.dh = dh;
+        this.row = row;
+        this.col = col;
+        this.correctX = dx;
+        this.correctY = dy;
+        this.isCorrect = false;
+    }
+    
+    draw() {
+        ctx.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
+        
+        // Dibujar bordes para visualizar las piezas
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.dx, this.dy, this.dw, this.dh);
+    }
+    
+    isPointInside(x, y) {
+        return x >= this.dx && x <= this.dx + this.dw && 
+               y >= this.dy && y <= this.dy + this.dh;
+    }
+}
+
+function initCanvas() {
+    canvas = document.getElementById('puzzle-canvas');
+    ctx = canvas.getContext('2d');
+    
+    // Ajustar tamaño del canvas al contenedor
+    const container = document.querySelector('.puzzle-display');
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    // Limpiar el canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function loadRandomTile() {
+    // Resetear el juego
+    pieces = [];
+    selectedPiece = null;
+    clearInterval(timerInterval);
+    seconds = 0;
+    isTimerRunning = false;
+    isPuzzleComplete = false;
+    document.getElementById('timer').textContent = '0:00';
+    document.getElementById('completion-message').style.display = 'none';
+    document.getElementById('tile-details').style.display = 'none';
+    
+    // Mostrar mensaje de carga
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Cargando azulejo...', canvas.width/2, canvas.height/2);
+    
+    fetch('/actividad/tesoro/get_random_tile/').then(r=>r.json()).then(data=>{
+        currentTile = data;
+        
+        // Cargar la imagen
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = function() {
+            createPuzzlePieces(img);
+            updateTileInfo();
+        };
+        img.src = currentTile.imagen_principal;
+    });
+}
+
+function createPuzzlePieces(img) {
+    // Calcular dimensiones de las piezas
+    const pieceWidth = img.width / GRID_SIZE;
+    const pieceHeight = img.height / GRID_SIZE;
+    
+    // Escalar para que quepa en el canvas
+    const scale = Math.min(
+        (canvas.width * 0.9) / img.width,
+        (canvas.height * 0.9) / img.height
+    );
+    const scaledWidth = img.width * scale;
+    const scaledHeight = img.height * scale;
+    const scaledPieceWidth = pieceWidth * scale;
+    const scaledPieceHeight = pieceHeight * scale;
+    
+    // Calcular margen para centrar
+    const marginX = (canvas.width - scaledWidth) / 2;
+    const marginY = (canvas.height - scaledHeight) / 2;
+    
+    // Crear piezas
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            const sx = col * pieceWidth;
+            const sy = row * pieceHeight;
+            
+            // Posición correcta (centrada)
+            const correctX = marginX + col * scaledPieceWidth;
+            const correctY = marginY + row * scaledPieceHeight;
+            
+            // Posición inicial aleatoria (evitando bordes)
+            const dx = Math.random() * (canvas.width - scaledPieceWidth - 40) + 20;
+            const dy = Math.random() * (canvas.height - scaledPieceHeight - 40) + 20;
+            
+            const piece = new PuzzlePiece(
+                img, 
+                sx, sy, pieceWidth, pieceHeight,
+                dx, dy, scaledPieceWidth, scaledPieceHeight,
+                row, col
+            );
+            
+            // Guardar posición correcta
+            piece.correctX = correctX;
+            piece.correctY = correctY;
+            
+            pieces.push(piece);
+        }
+    }
+    
+    // Dibujar piezas
+    drawPieces();
+    
+    // Configurar eventos
+    setupEventListeners();
+}
+
+function drawPieces() {
+    // Limpiar el canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Primero dibujar las piezas correctas (atrás)
+    pieces.forEach(piece => {
+        if (piece.isCorrect) {
+            piece.draw();
+        }
+    });
+    
+    // Luego dibujar las piezas incorrectas (adelante)
+    pieces.forEach(piece => {
+        if (!piece.isCorrect) {
+            piece.draw();
+        }
+    });
+}
+
+function setupEventListeners() {
+    // Limpiar eventos anteriores
+    canvas.removeEventListener('mousedown', onPointerDown);
+    canvas.removeEventListener('mousemove', onPointerMove);
+    canvas.removeEventListener('mouseup', onPointerUp);
+    canvas.removeEventListener('mouseleave', onPointerUp);
+    canvas.removeEventListener('touchstart', onPointerDown);
+    canvas.removeEventListener('touchmove', onPointerMove);
+    canvas.removeEventListener('touchend', onPointerUp);
+    
+    // Agregar nuevos eventos para mouse y touch
+    canvas.addEventListener('mousedown', onPointerDown);
+    canvas.addEventListener('mousemove', onPointerMove);
+    canvas.addEventListener('mouseup', onPointerUp);
+    canvas.addEventListener('mouseleave', onPointerUp);
+    canvas.addEventListener('touchstart', onPointerDown, {passive: false});
+    canvas.addEventListener('touchmove', onPointerMove, {passive: false});
+    canvas.addEventListener('touchend', onPointerUp);
+}
+
+function getPointerPosition(e) {
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+    
+    if (e.type.includes('touch')) {
+        const touch = e.touches[0] || e.changedTouches[0];
+        x = touch.clientX - rect.left;
+        y = touch.clientY - rect.top;
+    } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    }
+    
+    return { x, y };
+}
+
+function onPointerDown(e) {
+    if (isPuzzleComplete) return;
+    
+    // Prevenir el comportamiento por defecto para evitar scrolling
+    if (e.type === 'touchstart') {
+        e.preventDefault();
+    }
+    
+    const { x, y } = getPointerPosition(e);
+    
+    // Buscar la pieza clickeada (empezando por las de arriba)
+    for (let i = pieces.length - 1; i >= 0; i--) {
+        const piece = pieces[i];
+        if (!piece.isCorrect && piece.isPointInside(x, y)) {
+            selectedPiece = piece;
+            offset.x = x - piece.dx;
+            offset.y = y - piece.dy;
+            
+            // Mover la pieza al frente del array para que se dibuje encima
+            pieces.splice(i, 1);
+            pieces.push(selectedPiece);
+            
+            // Iniciar el cronómetro si es la primera pieza movida
+            if (!isTimerRunning) {
+                startTimer();
+                isTimerRunning = true;
+            }
+            
+            drawPieces();
+            break;
+        }
+    }
+}
+
+function onPointerMove(e) {
+    if (!selectedPiece || isPuzzleComplete) return;
+    
+    // Prevenir el comportamiento por defecto para evitar scrolling
+    if (e.type === 'touchmove') {
+        e.preventDefault();
+    }
+    
+    const { x, y } = getPointerPosition(e);
+    
+    selectedPiece.dx = x - offset.x;
+    selectedPiece.dy = y - offset.y;
+    
+    // Verificar si la pieza está cerca de su posición correcta
+    const tolerance = 15;
+    const distX = Math.abs(selectedPiece.dx - selectedPiece.correctX);
+    const distY = Math.abs(selectedPiece.dy - selectedPiece.correctY);
+    
+    if (distX < tolerance && distY < tolerance) {
+        selectedPiece.dx = selectedPiece.correctX;
+        selectedPiece.dy = selectedPiece.correctY;
+        selectedPiece.isCorrect = true;
+        selectedPiece = null;
+        
+        // Verificar si el rompecabezas está completo
+        checkPuzzleCompletion();
+    }
+    
+    drawPieces();
+}
+
+function onPointerUp() {
+    if (selectedPiece && !isPuzzleComplete) {
+        // Verificar si la pieza está cerca de su posición correcta
+        const tolerance = 15;
+        const distX = Math.abs(selectedPiece.dx - selectedPiece.correctX);
+        const distY = Math.abs(selectedPiece.dy - selectedPiece.correctY);
+        
+        if (distX < tolerance && distY < tolerance) {
+            selectedPiece.dx = selectedPiece.correctX;
+            selectedPiece.dy = selectedPiece.correctY;
+            selectedPiece.isCorrect = true;
+            
+            // Verificar si el rompecabezas está completo
+            checkPuzzleCompletion();
+        }
+        
+        selectedPiece = null;
+        drawPieces();
+    }
+}
+
+function checkPuzzleCompletion() {
+    const allCorrect = pieces.every(piece => piece.isCorrect);
+    
+    if (allCorrect) {
+        isPuzzleComplete = true;
+        clearInterval(timerInterval);
+        
+        // Mostrar mensaje de completado
+        document.getElementById('completion-message').style.display = 'block';
+        document.getElementById('final-time').textContent = formatTime(seconds);
+        
+        // Mostrar información del azulejo
+        document.getElementById('tile-details').style.display = 'block';
+    }
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        seconds++;
+        document.getElementById('timer').textContent = formatTime(seconds);
+    }, 1000);
+}
+
+function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function updateTileInfo() {
+    if (!currentTile) return;
+    
+    document.getElementById('tile-image').src = currentTile.imagen_principal;
+    document.getElementById('tile-title').textContent = currentTile.titulo || currentTile.nombre;
+    document.getElementById('tile-style').textContent = 'Estilo: ' + currentTile.estilo_display;
+    document.getElementById('tile-era').textContent = 'Época: ' + currentTile.epoca;
+    document.getElementById('tile-location').textContent = 'Ubicación: ' + currentTile.ubicacion;
+    document.getElementById('tile-description-text').textContent = currentTile.descripcion || 'Descripción no disponible';
+}
+
+// Inicializar el juego cuando la página cargue
+document.addEventListener('DOMContentLoaded', () => {
+    initCanvas();
+    loadRandomTile();
+    
+    // Configurar botones
+    document.getElementById('skip-button').addEventListener('click', loadRandomTile);
+    document.getElementById('next-puzzle-btn').addEventListener('click', loadRandomTile);
+});
+
+// Redimensionar el canvas cuando cambie el tamaño de la ventana
+window.addEventListener('resize', () => {
+    initCanvas();
+    if (pieces.length > 0) {
+        // Volver a crear las piezas con el nuevo tamaño
+        const img = pieces[0].img;
+        createPuzzlePieces(img);
+    }
+});
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}

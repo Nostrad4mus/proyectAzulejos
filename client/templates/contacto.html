@@ -1,0 +1,294 @@
+{% extends "templ.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --card-color: #ffffff;
+    }
+    
+    .contact-header {
+        background: linear-gradient(135deg, var(--primary-color), #3a5678);
+        color: white;
+        padding: 5rem 1rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-header::before {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: url('{% static "img/azulejo-pattern.png" %}') repeat-x;
+        background-size: contain;
+        opacity: 0.15;
+    }
+    
+    .contact-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8rem;
+    }
+    
+    .contact-subtitle {
+        font-size: 1.3rem;
+        max-width: 800px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+    
+    .contact-container {
+        max-width: 800px;
+        margin: 0 auto 5rem;
+        padding: 0 1.5rem;
+    }
+    
+    .contact-card {
+        background-color: var(--card-color);
+        border-radius: 15px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 180px;
+        resize: vertical;
+    }
+    
+    .submit-btn {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .submit-btn:hover {
+        background-color: var(--btn-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .submit-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .contact-info {
+        margin-top: 4rem;
+        text-align: center;
+    }
+    
+    .contact-method {
+        display: inline-block;
+        margin: 0 1.5rem 2rem;
+        text-align: center;
+    }
+    
+    .contact-icon {
+        width: 70px;
+        height: 70px;
+        background-color: var(--light-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.8rem;
+        color: var(--secondary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .contact-method:hover .contact-icon {
+        background-color: var(--secondary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border: 1px solid transparent;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+    
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+    }
+    
+    @media (max-width: 768px) {
+        .contact-header {
+            padding: 3rem 1rem;
+        }
+        
+        .contact-title {
+            font-size: 2rem;
+        }
+        
+        .contact-card {
+            padding: 2rem;
+        }
+        
+        .contact-method {
+            margin: 0 0.5rem 1.5rem;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="contact-header">
+    <h1 class="contact-title">Contáctenos</h1>
+    <p class="contact-subtitle">¿Tienes preguntas, sugerencias o quieres colaborar con nuestro proyecto? Escríbenos.</p>
+</div>
+
+<div class="contact-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="contact-card">
+        <form method="post" id="contactForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="name" class="form-label">Nombre completo</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject" class="form-label">Asunto</label>
+                <select id="subject" name="subject" class="form-control" required>
+                    <option value="" disabled selected>Seleccione un asunto</option>
+                    <option value="Consulta general">Consulta general</option>
+                    <option value="Colaboración">Colaboración o voluntariado</option>
+                    <option value="Reporte de azulejo">Reporte de azulejo</option>
+                    <option value="Derechos de uso">Derechos de uso de imágenes</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message" class="form-label">Mensaje</label>
+                <textarea id="message" name="message" class="form-control" required></textarea>
+            </div>
+            
+            <div class="form-group" style="margin-top: 2.5rem;">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="bi bi-send"></i> Enviar mensaje
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="contact-info">
+        <h3 style="margin-bottom: 2rem; color: var(--primary-color);">Otras formas de contacto</h3>
+        
+        <div class="contact-method">
+            <div class="contact-icon">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <h4>Correo electrónico</h4>
+            <p>info@azulejoshabaneros.cu</p>
+        </div>
+        
+        <div class="contact-method">
+            <div class="contact-icon">
+                <i class="bi bi-telephone"></i>
+            </div>
+            <h4>Teléfono</h4>
+            <p>+53 7 123 4567</p>
+        </div>
+        
+        <div class="contact-method">
+            <div class="contact-icon">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <h4>Oficina</h4>
+            <p>Calle Mercaderes #115<br>Habana Vieja, La Habana</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Deshabilitar el botón después de enviar para evitar múltiples envíos
+    document.getElementById('contactForm').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '<i class="bi bi-hourglass"></i> Enviando...';
+    });
+    
+    // Validación básica del formulario
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value;
+        if (!email.includes('@') || !email.includes('.')) {
+            e.preventDefault();
+            alert('Por favor ingrese un correo electrónico válido');
+        }
+    });
+</script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+{% endblock %}
