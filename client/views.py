@@ -22,7 +22,6 @@ def clear_dir(recurso):
 # Create your views here.
 def see_home(req):
     azulejos = Azulejo.objects.all()
-    print(azulejos)
     return render(req, 'index.html', {
         "azulejos": azulejos
     })
@@ -200,7 +199,6 @@ def see_child_historias(req):
         cuento.portada = str(cuento.portada).replace("client/","")
         cuento.archivo_animado = str(cuento.archivo_animado).replace("client/","")
     
-    print(page_obj.object_list)
     
     context = {
         'page_obj': page_obj,
@@ -233,7 +231,6 @@ def see_talleres(req):
         taller.imagen_portada = str(taller.imagen_portada).replace("client/","")
         taller.video_tutorial = str(taller.video_tutorial).replace("client/", "")
 
-    print(talleres[0].imagen_portada)
     
     # Filtros
     nivel = req.GET.get('nivel')
@@ -291,7 +288,6 @@ def get_random_tile(req):
     random_tile = random.choice(tiles_with_coords)
     
     random_tile.imagen = clear_dir(random_tile.imagen)
-    print(random_tile.imagen.url)
     
     # Crear un diccionario con los datos necesarios
     tile_data = {
@@ -424,7 +420,6 @@ def see_contacto(req):
             return redirect('contacto')
     
         try:
-            print("Correo Enviado")
             # Enviar correo a los superusuarios
             admin_subject = f"Nuevo mensaje de contacto: {subject}"
             admin_message = f"""
@@ -483,7 +478,6 @@ def see_contacto(req):
             return redirect('/contacto')
             
         except Exception as e:
-            print(e)
             messages.error(req, f'Ocurrió un error al enviar tu mensaje. Por favor intenta nuevamente. Error: {str(e)}')
             return redirect('/contacto')
     
