@@ -347,12 +347,19 @@
         <a href="/noticia/{{ noticia.id }}" class="read-more">Leer más</a>
     </div>
     {% empty %}
-    <p>No hay noticias disponibles.</p>
+    {% comment %} <p>No hay noticias disponibles.</p> {% endcomment %}
+    <p>Proximamente.</p>
     {% endfor %}
     
+    {% if noticias %}
     <div class="text-center mt-3">
         <a href="/noticias" class="btn btn-grid">Ver todas las noticias</a>
     </div>
+    {% else %}
+    <div class="text-center mt-3">
+        <a href="/noticias" class="btn btn-grid disabled">Ver todas las noticias</a>
+    </div>
+    {% endif %}
 </div>
 
 <script>

@@ -212,7 +212,7 @@
                 {% for taller in talleres %}
                 <a href="/actividad/taller/{{ taller.slug }}" class="taller-card">
                     <span class="taller-badge">{{ taller.get_tipo_taller_display }}</span>
-                    <img src="{{ taller.imagen_portada.url }}" alt="{{ taller.titulo }}" class="taller-portada">
+                    <img src="{% static "" %}{{ taller.imagen_portada.url }}" alt="{{ taller.titulo }}" class="taller-portada">
                     <div class="taller-content">
                         <h3 class="taller-title">{{ taller.titulo }}</h3>
                         <p class="taller-desc">{{ taller.descripcion|truncatewords:15 }}</p>

@@ -137,7 +137,7 @@
         <div class="taller-main">
             {% if taller.video_tutorial %}
             <div class="taller-video-container">
-                <iframe src="{{ taller.video_tutorial.url }}" allowfullscreen></iframe>
+                <iframe src="{% static "" %}{{ taller.video_tutorial.url }}" allowfullscreen></iframe>
             </div>
             {% endif %}
             

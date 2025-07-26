@@ -316,7 +316,7 @@
                         
                         <div class="resource-footer">
                             <span class="resource-type">{{ recurso.get_tipo_display }}</span>
-                            <a href="{{ recurso.archivo.url }}" class="download-btn" download>
+                            <a href="{% static "" %}{{ recurso.archivo.url }}" class="download-btn" download>
                                 <i class="fas fa-download"></i> Descargar
                             </a>
                         </div>

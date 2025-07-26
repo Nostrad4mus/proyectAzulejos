@@ -285,6 +285,9 @@
         
         <div class="puzzle-info">
             <h2>Instrucciones:</h2>
+
+            {% static "" %}
+
             <ol>
                 <li>Toca y arrastra las piezas para moverlas</li>
                 <li>Cuando dos piezas estén en la posición correcta, se unirán automáticamente</li>
@@ -399,7 +402,7 @@ function loadRandomTile() {
             createPuzzlePieces(img);
             updateTileInfo();
         };
-        img.src = currentTile.imagen_principal;
+        img.src = "{% static "" %}"+currentTile.imagen_principal;
     });
 }
 
@@ -478,6 +481,11 @@ function drawPieces() {
         }
     });
 }
+
+
+
+
+
 
 function setupEventListeners() {
     // Limpiar eventos anteriores
@@ -634,7 +642,7 @@ function formatTime(totalSeconds) {
 function updateTileInfo() {
     if (!currentTile) return;
     
-    document.getElementById('tile-image').src = currentTile.imagen_principal;
+    document.getElementById('tile-image').src = "{% static "" %}"+currentTile.imagen_principal;
     document.getElementById('tile-title').textContent = currentTile.titulo || currentTile.nombre;
     document.getElementById('tile-style').textContent = 'Estilo: ' + currentTile.estilo_display;
     document.getElementById('tile-era').textContent = 'Época: ' + currentTile.epoca;

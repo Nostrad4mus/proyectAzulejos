@@ -21,6 +21,7 @@
     }
     .treasure-header { text-align:center; margin-bottom:2rem; position:relative; }
     .treasure-title {
+        text-align: center;
         font-family:'Comic Sans MS', cursive; font-size:3.5rem; color:white;
         text-shadow:3px 3px 0 var(--dark); margin-bottom:1rem;
         animation:bounce 2s infinite;
@@ -73,7 +74,7 @@
         <img src="{% static 'img/azulejin/azulejin.png' %}" class="character-float azulejin" alt="Azulejín">
         <img src="{% static 'img/azulejin/azulejina.png' %}" class="character-float azulejina" alt="Azulejina">
         <h1 class="treasure-title">Búsqueda del Tesoro</h1>
-        <p class="treasure-subtitle">¿Puedes encontrar la ubicación de este azulejo?</p>
+        <p class="treasure-subtitle" style="text-align: center;">¿Puedes encontrar la ubicación de este azulejo?</p>
     </div>
 
     <div class="game-container">
@@ -143,7 +144,7 @@ function loadRandomTile() {
     document.getElementById('loader')?.removeAttribute('style');
     fetch('/actividad/tesoro/get_random_tile/').then(r=>r.json()).then(data=>{
         currentTile = data;
-        document.getElementById('tile-image').src = currentTile.imagen_principal;
+        document.getElementById('tile-image').src = "{% static "" %}"+currentTile.imagen_principal;
         document.getElementById('tile-title').textContent = currentTile.titulo || currentTile.nombre;
         document.getElementById('tile-style').textContent = 'Estilo: '+currentTile.estilo_display;
         document.getElementById('tile-era').textContent = 'Época: '+currentTile.epoca;

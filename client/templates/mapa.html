@@ -393,7 +393,7 @@
             let popupContent = '';
             
             if (imageUrl) {
-                popupContent += `<img src="${imageUrl}" class="popup-image" alt="${title}">`;
+                popupContent += `<img src="{% static "" %}${imageUrl}" class="popup-image" alt="${title}">`;
             }
             
             popupContent += `

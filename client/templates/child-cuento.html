@@ -159,14 +159,14 @@
         </div>
         
         <div class="cuento-card">
-            <img src="{{ cuento.portada.url }}" alt="{{ cuento.titulo }}" class="cuento-portada">
+            <img src="{% static "" %}{{ cuento.portada.url }}" alt="{{ cuento.titulo }}" class="cuento-portada">
             <div class="cuento-content">
                 <p class="cuento-desc">{{ cuento.descripcion }}</p>
                 
                 {% if cuento.archivo_animado %}
                 <div class="ratio ratio-16x9">
                     <video controls class="cuento-animacion">
-                        <source src="{{ cuento.archivo_animado.url }}" type="video/mp4">
+                        <source src="{% static "" %}{{ cuento.archivo_animado.url }}" type="video/mp4">
                         Tu navegador no soporta videos HTML5.
                     </video>
                 </div>

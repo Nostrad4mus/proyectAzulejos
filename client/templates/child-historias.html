@@ -216,7 +216,7 @@
                 {% for cuento in page_obj %}
                 <a href="/actividad/cuentos/{{cuento.slug}}" class="cuento-card">
                     <span class="cuento-badge">{{ cuento.get_nivel_display }}</span>
-                    <img src="{{ cuento.portada.url }}" alt="{{ cuento.titulo }}" class="cuento-portada">
+                    <img src="{% static "" %}{{ cuento.portada.url }}" alt="{{ cuento.titulo }}" class="cuento-portada">
                     <div class="cuento-content">
                         <h3 class="cuento-title">{{ cuento.titulo }}</h3>
                         <p class="cuento-desc">{{ cuento.descripcion|truncatewords:15 }}</p>
