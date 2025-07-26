@@ -482,3 +482,596 @@ def see_contacto(req):
             return redirect('/contacto')
     
     return render(req, 'contacto.html')
+
+
+from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Azulejo, RecursoBibliografico, MiembroEquipo, CuentoAnimado, TallerCreativo
+
+@staff_member_required(login_url='/admin/login/')
+def admin_dashboard(request):
+    context = {
+        'azulejos_count': Azulejo.objects.count(),
+        'recursos_count': RecursoBibliografico.objects.count(),
+        'miembros_count': MiembroEquipo.objects.count(),
+        'cuentos_count': CuentoAnimado.objects.count(),
+        'talleres_count': TallerCreativo.objects.count(),
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from .models import Azulejo
+from .forms import AzulejoForm
+
+
+@staff_member_required(login_url='/admin/login/')
+def admin_dashboard(request):
+    context = {
+        'azulejos_count': Azulejo.objects.count(),
+        'recursos_count': RecursoBibliografico.objects.count(),
+        'miembros_count': MiembroEquipo.objects.count(),
+        'cuentos_count': CuentoAnimado.objects.count(),
+        'talleres_count': TallerCreativo.objects.count(),
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+@staff_member_required(login_url='/admin/login/')
+def admin_azulejos(request):
+    # Filtros
+    estilo = request.GET.get('estilo')
+    busqueda = request.GET.get('q')
+    
+    azulejos = Azulejo.objects.all()
+    
+    if estilo:
+        azulejos = azulejos.filter(estilo=estilo)
+    if busqueda:
+        azulejos = azulejos.filter(titulo__icontains=busqueda)
+    
+    # Ordenación
+    orden = request.GET.get('orden', 'titulo')
+    azulejos = azulejos.order_by(orden)
+    
+    context = {
+        'azulejos': azulejos,
+        'estilos': Azulejo.ESTILOS,
+        'orden_actual': orden,
+        'form': AzulejoForm()  # Formulario para el modal de creación
+    }
+    return render(request, 'admin/azulejos.html', context)
+
+
+@staff_member_required
+def crear_azulejo(request):
+    if request.method == 'POST':
+        form = AzulejoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'errors': 'Método no permitido'})
+
+@staff_member_required
+def editar_azulejo(request, pk):
+    azulejo = get_object_or_404(Azulejo, pk=pk)
+    if request.method == 'POST':
+        form = AzulejoForm(request.POST, request.FILES, instance=azulejo)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    
+    # Para GET, devolvemos el formulario rellenado
+    form = AzulejoForm(instance=azulejo)
+    return render(request, 'admin/partials/azulejo_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_azulejo(request, pk):
+    azulejo = get_object_or_404(Azulejo, pk=pk)
+    if request.method == 'POST':
+        azulejo.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def eliminar_azulejos_multiples(request):
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        Azulejo.objects.filter(id__in=ids).delete()
+        return JsonResponse({'success': True, 'count': len(ids)})
+    return JsonResponse({'success': False})
+
+
+
+from .models import RecursoBibliografico
+from .forms import RecursoForm
+
+@staff_member_required
+def admin_recursos(request):
+    # Filtros
+    tipo = request.GET.get('tipo')
+    area = request.GET.get('area')
+    busqueda = request.GET.get('q')
+    
+    recursos = RecursoBibliografico.objects.all()
+    
+    if tipo:
+        recursos = recursos.filter(tipo=tipo)
+    if area:
+        recursos = recursos.filter(area=area)
+    if busqueda:
+        recursos = recursos.filter(titulo__icontains=busqueda)
+    
+    # Ordenación
+    orden = request.GET.get('orden', '-fecha_subida')
+    recursos = recursos.order_by(orden)
+    
+    context = {
+        'recursos': recursos,
+        'tipos': RecursoBibliografico.TIPO_CHOICES,
+        'areas': RecursoBibliografico.AREA_CHOICES,
+        'orden_actual': orden,
+        'form': RecursoForm()  # Formulario para el modal de creación
+    }
+    return render(request, 'admin/recursos.html', context)
+
+@staff_member_required
+def crear_recurso(request):
+    if request.method == 'POST':
+        form = RecursoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'errors': 'Método no permitido'})
+
+@staff_member_required
+def editar_recurso(request, pk):
+    recurso = get_object_or_404(RecursoBibliografico, pk=pk)
+    if request.method == 'POST':
+        form = RecursoForm(request.POST, request.FILES, instance=recurso)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = RecursoForm(instance=recurso)
+    return render(request, 'admin/partials/recurso_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_recurso(request, pk):
+    recurso = get_object_or_404(RecursoBibliografico, pk=pk)
+    if request.method == 'POST':
+        recurso.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def eliminar_recursos_multiples(request):
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        RecursoBibliografico.objects.filter(id__in=ids).delete()
+        return JsonResponse({'success': True, 'count': len(ids)})
+    return JsonResponse({'success': False})
+
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from .models import Azulejo
+from .forms import AzulejoForm
+
+@staff_member_required
+def editar_azulejo(request, pk):
+    azulejo = get_object_or_404(Azulejo, pk=pk)
+    if request.method == 'POST':
+        form = AzulejoForm(request.POST, request.FILES, instance=azulejo)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = AzulejoForm(instance=azulejo)
+    return render(request, 'admin/partials/azulejo_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_azulejo(request, pk):
+    azulejo = get_object_or_404(Azulejo, pk=pk)
+    if request.method == 'POST':
+        azulejo.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@staff_member_required
+def eliminar_azulejos_multiples(request):
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        Azulejo.objects.filter(id__in=ids).delete()
+        return JsonResponse({'success': True, 'deleted': len(ids)})
+    return JsonResponse({'success': False})
+
+
+
+
+
+
+from .models import RecursoBibliografico
+from .forms import RecursoForm
+
+@staff_member_required
+def editar_recurso(request, pk):
+    recurso = get_object_or_404(RecursoBibliografico, pk=pk)
+    if request.method == 'POST':
+        form = RecursoForm(request.POST, request.FILES, instance=recurso)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = RecursoForm(instance=recurso)
+    return render(request, 'admin/partials/recurso_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_recurso(request, pk):
+    recurso = get_object_or_404(RecursoBibliografico, pk=pk)
+    if request.method == 'POST':
+        recurso.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def eliminar_recursos_multiples(request):
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        RecursoBibliografico.objects.filter(id__in=ids).delete()
+        return JsonResponse({'success': True, 'deleted': len(ids)})
+    return JsonResponse({'success': False})
+
+
+
+
+
+
+
+from .models import MiembroEquipo, CuentoAnimado, TallerCreativo
+from .forms import MiembroForm, CuentoForm, TallerForm
+
+# ---- Miembros del Equipo ----
+@staff_member_required
+def admin_miembros(request):
+    miembros = MiembroEquipo.objects.all().order_by('orden')
+    context = {
+        'miembros': miembros,
+        'roles': MiembroEquipo.ROL_CHOICES,
+        'form': MiembroForm()
+    }
+    return render(request, 'admin/miembros.html', context)
+
+@staff_member_required
+def crear_miembro(request):
+    if request.method == 'POST':
+        form = MiembroForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def editar_miembro(request, pk):
+    miembro = get_object_or_404(MiembroEquipo, pk=pk)
+    if request.method == 'POST':
+        form = MiembroForm(request.POST, request.FILES, instance=miembro)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = MiembroForm(instance=miembro)
+    return render(request, 'admin/partials/miembro_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_miembro(request, pk):
+    miembro = get_object_or_404(MiembroEquipo, pk=pk)
+    if request.method == 'POST':
+        miembro.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+# ---- Cuentos Animados ----
+@staff_member_required
+def admin_cuentos(request):
+    cuentos = CuentoAnimado.objects.all().order_by('-fecha_publicacion')
+    context = {
+        'cuentos': cuentos,
+        'niveles': CuentoAnimado.NIVEL_CHOICES,
+        'form': CuentoForm()
+    }
+    return render(request, 'admin/cuentos.html', context)
+
+@staff_member_required
+def crear_cuento(request):
+    if request.method == 'POST':
+        form = CuentoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def editar_cuento(request, pk):
+    cuento = get_object_or_404(CuentoAnimado, pk=pk)
+    if request.method == 'POST':
+        form = CuentoForm(request.POST, request.FILES, instance=cuento)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = CuentoForm(instance=cuento)
+    return render(request, 'admin/partials/cuento_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_cuento(request, pk):
+    cuento = get_object_or_404(CuentoAnimado, pk=pk)
+    if request.method == 'POST':
+        cuento.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+# ---- Talleres Creativos ----
+@staff_member_required
+def admin_talleres(request):
+    talleres = TallerCreativo.objects.all().order_by('-fecha_publicacion')
+    context = {
+        'talleres': talleres,
+        'niveles': TallerCreativo.NIVEL_DIFICULTAD,
+        'tipos': TallerCreativo.TIPO_TALLER,
+        'form': TallerForm()
+    }
+    return render(request, 'admin/talleres.html', context)
+
+@staff_member_required
+def crear_taller(request):
+    if request.method == 'POST':
+        form = TallerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False})
+
+@staff_member_required
+def editar_taller(request, pk):
+    taller = get_object_or_404(TallerCreativo, pk=pk)
+    if request.method == 'POST':
+        form = TallerForm(request.POST, request.FILES, instance=taller)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'errors': form.errors})
+    
+    form = TallerForm(instance=taller)
+    return render(request, 'admin/partials/taller_form.html', {'form': form})
+
+@staff_member_required
+def eliminar_taller(request, pk):
+    taller = get_object_or_404(TallerCreativo, pk=pk)
+    if request.method == 'POST':
+        taller.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+
+
+
+
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.decorators import login_required
+
+from .forms import CustomUserChangeForm
+
+@staff_member_required
+def perfil_usuario(request):
+    user = request.user
+    if request.method == 'POST':
+        # Usamos una versión personalizada del formulario
+        form = CustomUserChangeForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Perfil actualizado correctamente')
+            return redirect('perfil_usuario')
+    else:
+        # Creamos una instancia del formulario personalizado
+        form = CustomUserChangeForm(instance=user)
+    
+    context = {
+        'form': form,
+        'user': user
+    }
+    return render(request, 'admin/perfil.html', context)
+
+from django.http import JsonResponse
+
+@staff_member_required
+def configuracion_usuario(request):
+    if request.method == 'POST':
+        if 'theme' in request.POST:
+            form = ThemeForm(request.POST)
+            if form.is_valid():
+                request.session['theme'] = form.cleaned_data['theme']
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True})
+                messages.success(request, 'Preferencias guardadas correctamente')
+                return redirect('configuracion_usuario')
+        
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Contraseña cambiada correctamente')
+            return redirect('configuracion_usuario')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    theme_form = ThemeForm(initial={'theme': request.session.get('theme', 'light')})
+    
+    context = {
+        'form': form,
+        'theme_form': theme_form
+    }
+    return render(request, 'admin/configuracion.html', context)
+
+
+# views.py
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+
+@require_POST
+def custom_logout(request):
+    logout(request)
+    return redirect('login')  # Cambia 'login' por tu URL de inicio de sesión
+
+
+
+
+# views.py
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+
+@require_POST
+def custom_logout(request):
+    logout(request)
+    return redirect('login')  # Cambia 'login' por tu URL de inicio de sesión
+
+
+
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import FormView
+from django.contrib.auth.forms import AuthenticationForm
+
+class CustomLoginView(SuccessMessageMixin, LoginView):
+    template_name = 'admin/login.html'
+    form_class = AuthenticationForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('admin_dashboard')
+    success_message = "Has iniciado sesión correctamente"
+    
+    def get_success_url(self):
+        return self.success_url
+    
+    def form_invalid(self, form):
+        messages.error(self.request, "Credenciales incorrectas. Inténtalo de nuevo.")
+        return super().form_invalid(form)
+
+class CustomLogoutView(LogoutView):
+    next_page = reverse_lazy('login')
+    
+    def dispatch(self, request, *args, **kwargs):
+        messages.info(request, "Has cerrado sesión correctamente")
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.contrib import messages
+from .forms import UsuarioForm
+
+User = get_user_model()
+
+def superuser_required(view_func):
+    return user_passes_test(
+        lambda u: u.is_superuser,
+        login_url='admin_dashboard'
+    )(view_func)
+    
+    
+@superuser_required
+def gestion_usuarios(request):
+    usuarios = User.objects.all().order_by('-date_joined')
+    form = UsuarioForm()  # Formulario vacío para creación
+    
+    return render(request, 'admin/gestion_usuarios.html', {
+        'usuarios': usuarios,
+        'form': form,  # Asegúrate de pasar el formulario
+        'total_usuarios': usuarios.count(),
+        'staff_count': User.objects.filter(is_staff=True).count(),
+    })
+
+@superuser_required
+def crear_usuario(request):
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'Usuario {user.username} creado correctamente')
+            return redirect('gestion_usuarios')
+    else:
+        form = UsuarioForm()
+    
+    return render(request, 'admin/partials/usuario_form.html', {'form': form})
+
+@superuser_required
+def editar_usuario(request, pk):
+    usuario = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        print(request.POST)
+        form = UsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            user = form.save()
+            return JsonResponse({
+                'success': True,
+                'message': f'Usuario {user.username} actualizado'
+            })
+        
+        # Debug: Imprimir errores en consola
+        print("Errores del formulario:", form.errors)
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors.get_json_data()
+        }, status=400)
+    
+    form = UsuarioForm(instance=usuario)
+    return render(request, 'admin/partials/usuario_form.html', {'form': form})
+
+@superuser_required
+def eliminar_usuario(request, pk):
+    usuario = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        username = usuario.username
+        usuario.delete()
+        messages.success(request, f'Usuario {username} eliminado correctamente')
+        return JsonResponse({'success': True, 'message': f'Usuario {username} eliminado'})
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Método no permitido'
+    }, status=400)

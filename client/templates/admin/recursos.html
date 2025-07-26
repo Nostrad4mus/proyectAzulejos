@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 mb-0">Administrar Recursos</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoRecursoModal">
+        <i class="bi bi-plus-circle"></i> Añadir Recurso
+    </button>
+</div>
+
+<!-- Filtros y búsqueda -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="tipo" class="form-label">Filtrar por tipo</label>
+                <select name="tipo" id="tipo" class="form-select">
+                    <option value="">Todos</option>
+                    {% for tipo in tipos %}
+                    <option value="{{ tipo.0 }}" {% if request.GET.tipo == tipo.0 %}selected{% endif %}>
+                        {{ tipo.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="area" class="form-label">Filtrar por área</label>
+                <select name="area" id="area" class="form-select">
+                    <option value="">Todas</option>
+                    {% for area in areas %}
+                    <option value="{{ area.0 }}" {% if request.GET.area == area.0 %}selected{% endif %}>
+                        {{ area.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="busqueda" class="form-label">Buscar</label>
+                <input type="text" name="q" id="busqueda" class="form-control" 
+                       placeholder="Buscar por título..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <a href="{% url 'admin_recursos' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de recursos -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="?orden={% if orden_actual == 'titulo' %}-titulo{% else %}titulo{% endif %}">
+                                Título {% if orden_actual == 'titulo' %}<i class="bi bi-arrow-up"></i>{% elif orden_actual == '-titulo' %}<i class="bi bi-arrow-down"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th>Tipo</th>
+                        <th>Área</th>
+                        <th>Autor</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                        <th>
+                            <input type="checkbox" id="selectAll" class="form-check-input">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recurso in recursos %}
+                    <tr>
+                        <td>{{ recurso.titulo }}</td>
+                        <td>{{ recurso.get_tipo_display }}</td>
+                        <td>{{ recurso.get_area_display }}</td>
+                        <td>{{ recurso.autor|truncatechars:20 }}</td>
+                        <td>{{ recurso.fecha_subida|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <!-- Botón Editar -->
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" 
+                                        data-bs-target="#editarAzulejoModal{{ azulejo.id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-outline-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#deleteConfirmModal"
+                                        data-bs-whatever="{{ azulejo.id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                
+                                <!-- Botón adicional para Recursos -->
+                                {% if recurso.archivo %}
+                                <a href="{{ recurso.archivo.url }}" class="btn btn-outline-success" target="_blank">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <input type="checkbox" class="form-check-input recurso-checkbox" 
+                                   value="{{ recurso.id }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Acciones masivas -->
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span id="selectedCount">0</span> seleccionados
+            </div>
+            <div>
+                <button class="btn btn-outline-danger btn-sm" id="deleteSelectedBtn" disabled>
+                    <i class="bi bi-trash"></i> Eliminar seleccionados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo recurso -->
+<div class="modal fade" id="nuevoRecursoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Añadir nuevo recurso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% include 'admin/partials/recurso_form.html' with form=form %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="recursoForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar recurso (dinámico) -->
+{% for recurso in recursos %}
+<div class="modal fade" id="editarRecursoModal{{ recurso.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar recurso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editarRecursoBody{{ recurso.id }}">
+                <!-- Carga via AJAX -->
+                <div class="text-center my-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="editarRecursoForm{{ recurso.id }}" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Selección múltiple
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.recurso-checkbox');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateSelectedCount();
+    });
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    
+    function updateSelectedCount() {
+        const selected = document.querySelectorAll('.recurso-checkbox:checked');
+        selectedCount.textContent = selected.length;
+        deleteSelectedBtn.disabled = selected.length === 0;
+    }
+    
+    // Carga de formularios de edición via AJAX
+    document.querySelectorAll('[id^="editarRecursoModal"]').forEach(modal => {
+        modal.addEventListener('show.bs.modal', function(event) {
+            const recursoId = modal.id.replace('editarRecursoModal', '');
+            const modalBody = document.getElementById(`editarRecursoBody${recursoId}`);
+            
+            if (!modalBody.dataset.loaded) {
+                fetch(`{% url 'editar_recurso' 0 %}`.replace('0', recursoId))
+                    .then(response => response.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        modalBody.dataset.loaded = true;
+                    });
+            }
+        });
+    });
+    
+    // Manejar envío del formulario de creación
+    const recursoForm = document.getElementById('recursoForm');
+    if (recursoForm) {
+        recursoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch("{% url 'crear_recurso' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    // Mostrar errores
+                    Object.keys(data.errors).forEach(field => {
+                        const input = document.getElementById(`id_${field}`);
+                        const errorDiv = input.nextElementSibling;
+                        input.classList.add('is-invalid');
+                        errorDiv.textContent = data.errors[field][0];
+                    });
+                }
+            });
+        });
+    }
+    
+    // Eliminación múltiple
+    deleteSelectedBtn.addEventListener('click', function() {
+        const selected = Array.from(document.querySelectorAll('.recurso-checkbox:checked'))
+                            .map(checkbox => checkbox.value);
+        
+        if (selected.length > 0 && confirm('¿Estás seguro de eliminar los recursos seleccionados?')) {
+            fetch("{% url 'eliminar_recursos_multiples' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify({ids: selected})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            });
+        }
+    });
+});
+
+
+// Manejar edición de azulejos/recursos
+document.querySelectorAll('[id^="editarAzulejoModal"], [id^="editarRecursoModal"]').forEach(modal => {
+    modal.addEventListener('show.bs.modal', function(event) {
+        const prefix = modal.id.includes('Azulejo') ? 'azulejo' : 'recurso';
+        const id = modal.id.replace(`editar${prefix.capitalize()}Modal`, '');
+        const modalBody = document.getElementById(`${prefix}EditBody${id}`);
+        
+        if (!modalBody.dataset.loaded) {
+            fetch(`/admin-dashboard/${prefix}s/${id}/editar/`)
+                .then(response => response.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+                    modalBody.dataset.loaded = true;
+                    
+                    // Configurar envío del formulario de edición
+                    const formId = `editar${prefix.capitalize()}Form${id}`;
+                    document.getElementById(formId).addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                Object.keys(data.errors).forEach(field => {
+                                    const input = document.getElementById(`id_${field}`);
+                                    const errorDiv = input.nextElementSibling;
+                                    input.classList.add('is-invalid');
+                                    errorDiv.textContent = data.errors[field][0];
+                                });
+                            }
+                        });
+                    });
+                });
+        }
+    });
+});
+
+// Manejar eliminación individual
+document.querySelectorAll('[data-bs-target^="#eliminarAzulejoModal"], [data-bs-target^="#eliminarRecursoModal"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const prefix = this.dataset.bsTarget.includes('Azulejo') ? 'azulejo' : 'recurso';
+        const id = this.dataset.bsTarget.replace(`#eliminar${prefix.capitalize()}Modal`, '');
+        
+        // Configurar el modal de confirmación
+        const deleteModal = document.getElementById('deleteConfirmModal');
+        const deleteForm = document.getElementById('deleteConfirmForm');
+        deleteForm.action = `/admin-dashboard/${prefix}s/${id}/eliminar/`;
+        
+        deleteModal.addEventListener('shown.bs.modal', function() {
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                fetch(deleteForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    });
+});
+
+// Helper para capitalizar strings
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+</script>
+{% endblock %}

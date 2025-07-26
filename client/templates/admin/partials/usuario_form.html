@@ -1,0 +1,163 @@
+{% load static %}
+<div class="user-form-container">
+    <form method="post" id="{% if form.instance.pk %}editarUsuarioForm{{ form.instance.pk }}{% else %}usuarioForm{% endif %}">
+        {% csrf_token %}
+        
+        <div class="row g-3">
+            <!-- Campos del formulario -->
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" name="username" value="{{ form.username.value|default:'' }}" 
+                           class="form-control" id="id_username" required
+                           placeholder="Nombre de usuario">
+                    <label for="id_username">Nombre de usuario</label>
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.username.errors.as_text }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}"
+                           class="form-control" id="id_email" required
+                           placeholder="Correo electrónico">
+                    <label for="id_email">Correo electrónico</label>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.email.errors.as_text }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                           class="form-control" id="id_first_name"
+                           placeholder="Nombre">
+                    <label for="id_first_name">Nombre</label>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+                           class="form-control" id="id_last_name"
+                           placeholder="Apellido">
+                    <label for="id_last_name">Apellido</label>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="password" name="password" 
+                           class="form-control" id="id_password"
+                           placeholder="Contraseña" autocomplete="new-password">
+                    <label for="id_password">Contraseña</label>
+                    <small class="text-muted">Dejar vacío para no cambiar</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch mb-3 d-flex align-items-center">
+                    <input class="form-check-input" type="checkbox" name="is_active" 
+                           id="id_is_active" {% if form.is_active.value %}checked{% endif %}>
+                    <label class="form-check-label ms-2" for="id_is_active">
+                        Usuario activo
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch mb-3 d-flex align-items-center">
+                    <input class="form-check-input" type="checkbox" name="is_staff" 
+                           id="id_is_staff" {% if form.is_staff.value %}checked{% endif %}>
+                    <label class="form-check-label ms-2" for="id_is_staff">
+                        Es staff
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-check form-switch mb-3 d-flex align-items-center">
+                    <input class="form-check-input" type="checkbox" name="is_superuser" 
+                           id="id_is_superuser" {% if form.is_superuser.value %}checked{% endif %}>
+                    <label class="form-check-label ms-2" for="id_is_superuser">
+                        Es superusuario
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <div class="form-group mb-3">
+                    <label class="form-label">Grupos</label>
+                    <select name="groups" class="form-select" id="id_groups" multiple>
+                        {% for group in form.groups.field.queryset %}
+                        <option value="{{ group.pk }}" 
+                                {% if group in form.instance.groups.all %}selected{% endif %}>
+                            {{ group.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .user-form-container .form-control,
+    .user-form-container .form-select {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+    }
+    
+    .user-form-container .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+    
+    .user-form-container .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        margin-top: 0;
+    }
+    
+    .user-form-container .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    
+    .user-form-container .is-invalid {
+        border-color: #dc3545;
+    }
+    
+    [data-bs-theme="dark"] .user-form-container .form-control,
+    [data-bs-theme="dark"] .user-form-container .form-select {
+        background-color: #2b3035;
+        border-color: #495057;
+        color: #f8f9fa;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Activar tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Manejar el cambio de checkboxes
+    document.querySelectorAll('.form-check-input').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            this.value = this.checked ? 'on' : 'off';
+        });
+    });
+});
+</script>

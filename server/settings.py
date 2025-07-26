@@ -41,13 +41,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'client',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'client'
 ]
 
 
@@ -153,3 +153,10 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'n62707291@gmail.com'
 EMAIL_HOST_PASSWORD = 'fnil chkt zqhe zavl'
 EMAIL_USE_TLS = True
+
+
+
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'admin_dashboard'
+LOGOUT_REDIRECT_URL = 'login'

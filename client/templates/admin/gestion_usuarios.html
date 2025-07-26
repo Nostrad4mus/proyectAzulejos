@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 mb-0">Gestión de Usuarios</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">
+        <i class="bi bi-plus-circle"></i> Nuevo Usuario
+    </button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Usuarios</h6>
+                        <h2 class="mb-0">{{ total_usuarios }}</h2>
+                    </div>
+                    <div class="stat-icon bg-primary-light">
+                        <i class="bi bi-people text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Usuarios Staff</h6>
+                        <h2 class="mb-0">{{ staff_count }}</h2>
+                    </div>
+                    <div class="stat-icon bg-success-light">
+                        <i class="bi bi-shield-check text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.get_full_name }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.is_active %}
+                            <span class="badge bg-success">Activo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.is_superuser %}
+                            <span class="badge bg-danger">Superusuario</span>
+                            {% elif usuario.is_staff %}
+                            <span class="badge bg-primary">Staff</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editarUsuarioModal{{ usuario.id }}">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                                <button class="btn btn-outline-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#eliminarUsuarioModal"
+                                        data-user-id="{{ usuario.id }}">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo usuario -->
+<div class="modal fade" id="nuevoUsuarioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Nuevo Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% include 'admin/partials/usuario_form.html' with form=form %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="usuarioForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="eliminarUsuarioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales dinámicos para edición -->
+{% for usuario in usuarios %}
+<div class="modal fade" id="editarUsuarioModal{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Usuario: {{ usuario.username }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editarUsuarioBody{{ usuario.id }}">
+                <!-- Carga via AJAX -->
+                <div class="text-center my-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="editarUsuarioForm{{ usuario.id }}" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Carga de formularios de edición via AJAX
+    document.querySelectorAll('[id^="editarUsuarioModal"]').forEach(modal => {
+        modal.addEventListener('show.bs.modal', function(event) {
+            const usuarioId = modal.id.replace('editarUsuarioModal', '');
+            const modalBody = document.getElementById(`editarUsuarioBody${usuarioId}`);
+            
+            if (!modalBody.dataset.loaded) {
+                fetch(`/admin-dashboard/gestion-usuarios/${usuarioId}/editar/`)
+                    .then(response => response.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        modalBody.dataset.loaded = true;
+                    });
+            }
+        });
+    });
+    
+    // Manejar envío del formulario de creación
+    const usuarioForm = document.getElementById('usuarioForm');
+    if (usuarioForm) {
+        usuarioForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch("{% url 'crear_usuario' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.errors) {
+                    // Mostrar errores
+                    Object.keys(data.errors).forEach(field => {
+                        const input = document.getElementById(`id_${field}`);
+                        const errorDiv = input.nextElementSibling;
+                        input.classList.add('is-invalid');
+                        errorDiv.textContent = data.errors[field][0];
+                    });
+                }
+            });
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar edición de usuarios
+    document.querySelectorAll('[id^="editarUsuarioModal"]').forEach(modal => {
+        modal.addEventListener('show.bs.modal', function(event) {
+            const usuarioId = this.id.replace('editarUsuarioModal', '');
+            const modalBody = document.getElementById(`editarUsuarioBody${usuarioId}`);
+            
+            
+
+            if (!modalBody.dataset.loaded) {
+                fetch(`/admin-dashboard/gestion-usuarios/${usuarioId}/editar/`)
+                    .then(response => response.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        modalBody.dataset.loaded = true;
+                        
+                        // Configurar envío del formulario de edición
+                        const form = document.getElementById(`editarUsuarioForm${usuarioId}`);
+                        if (form) {
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                const formData = new FormData(this);
+                                
+                                fetch(this.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        window.location.reload();
+                                    } else {
+                                        // Mostrar errores
+                                        Object.keys(data.errors).forEach(field => {
+                                            const input = document.getElementById(`id_${field}`);
+                                            const errorDiv = input.nextElementSibling;
+                                            input.classList.add('is-invalid');
+                                            if (errorDiv) {
+                                                errorDiv.textContent = data.errors[field][0].message;
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        }
+                    });
+            }
+        });
+    });
+
+    // Manejar eliminación de usuarios
+    document.querySelectorAll('[data-bs-target="#eliminarUsuarioModal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const usuarioId = this.getAttribute('data-user-id');
+            const deleteConfirmBtn = document.getElementById('confirmDeleteBtn');
+            
+            
+            deleteConfirmBtn.onclick = function() {
+                
+                fetch(`/admin-dashboard/gestion-usuarios/${usuarioId}/eliminar/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                });
+            };
+        });
+    });
+});
+
+
+document.querySelectorAll('[id^="editarUsuarioModal"]').forEach(modal => {
+    modal.addEventListener('show.bs.modal', function(event) {
+        const usuarioId = this.id.replace('editarUsuarioModal', '');
+        const modalBody = document.getElementById(`editarUsuarioBody${usuarioId}`);
+        
+        if (!modalBody.dataset.loaded) {
+            fetch(`/admin-dashboard/gestion-usuarios/${usuarioId}/editar/`)
+                .then(response => response.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+                    modalBody.dataset.loaded = true;
+                    
+                    // Configurar envío del formulario
+                    const form = modalBody.querySelector('form');
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': getCookie('csrftoken'),
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                // Limpiar errores previos
+                                modalBody.querySelectorAll('.is-invalid').forEach(el => {
+                                    el.classList.remove('is-invalid');
+                                });
+                                modalBody.querySelectorAll('.invalid-feedback').forEach(el => {
+                                    el.textContent = '';
+                                });
+                                
+                                // Mostrar nuevos errores
+                                if (data.errors) {
+                                    Object.keys(data.errors).forEach(field => {
+                                        const input = modalBody.querySelector(`#id_${field}`);
+                                        if (input) {
+                                            input.classList.add('is-invalid');
+                                            const errorDiv = input.nextElementSibling;
+                                            if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                                                errorDiv.textContent = data.errors[field][0];
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+        }
+    });
+});
+</script>
+
+
+
+{% endblock %}

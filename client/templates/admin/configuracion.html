@@ -1,0 +1,100 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 mb-0">Configuración</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Cambiar contraseña</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'configuracion_usuario' %}">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label class="form-label">Contraseña actual</label>
+                        {{ form.old_password }}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nueva contraseña</label>
+                        {{ form.new_password1 }}
+                        <div class="form-text">Mínimo 8 caracteres, no completamente numérica.</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Confirmar nueva contraseña</label>
+                        {{ form.new_password2 }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-key"></i> Cambiar contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Preferencias</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'configuracion_usuario' %}" id="themeForm">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label class="form-label">Tema de la interfaz</label>
+                        <div class="btn-group w-100" role="group">
+                            {% for choice in theme_form.theme %}
+                            <div class="flex-fill">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}" 
+                                       class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-{% if choice.choice_value == 'light' %}sun{% elif choice.choice_value == 'dark' %}moon{% else %}laptop{% endif %}"></i>
+                                    {{ choice.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar preferencias
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar el cambio de tema
+    const themeForm = document.getElementById('themeForm');
+    if (themeForm) {
+        themeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar para aplicar el tema
+                    window.location.reload();
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

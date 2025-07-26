@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 mb-0">Miembros del Equipo</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoMiembroModal">
+        <i class="bi bi-plus-circle"></i> Añadir Miembro
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Especialización</th>
+                        <th>Email</th>
+                        <th>Orden</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for miembro in miembros %}
+                    <tr>
+                        <td>
+                            <img src="{{ miembro.imagen.url }}" alt="{{ miembro.nombre }}" 
+                                 class="rounded-circle me-2" width="40" height="40">
+                            {{ miembro.nombre }}
+                        </td>
+                        <td>{{ miembro.get_rol_display }}</td>
+                        <td>{{ miembro.especializacion }}</td>
+                        <td>{{ miembro.email }}</td>
+                        <td>{{ miembro.orden }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" 
+                                        data-bs-target="#editarMiembroModal{{ miembro.id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#eliminarMiembroModal{{ miembro.id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo miembro -->
+<div class="modal fade" id="nuevoMiembroModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Añadir nuevo miembro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% include 'admin/partials/miembro_form.html' with form=form %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="miembroForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales para editar (se generan dinámicamente) -->
+{% for miembro in miembros %}
+<div class="modal fade" id="editarMiembroModal{{ miembro.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar miembro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editarMiembroBody{{ miembro.id }}">
+                <!-- Carga via AJAX -->
+                <div class="text-center my-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="editarMiembroForm{{ miembro.id }}" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Implementación similar a las secciones anteriores
+// para manejar los formularios y eliminación
+</script>
+{% endblock %}

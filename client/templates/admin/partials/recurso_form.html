@@ -1,0 +1,38 @@
+{% load static %}
+<form method="post" enctype="multipart/form-data" id="recursoForm">
+    {% csrf_token %}
+    <div class="mb-3 text-muted small">Los campos marcados con * son obligatorios</div>
+    
+    <div class="row g-3">
+        {% for field in form %}
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                <div class="invalid-feedback">{{ field.errors }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</form>
+
+<style>
+    .required-field label:after {
+        content: " *";
+        color: red;
+    }
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    .is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+</style>

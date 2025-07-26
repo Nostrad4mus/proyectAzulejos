@@ -1,0 +1,14 @@
+<form method="post" enctype="multipart/form-data" id="cuentoForm">
+    {% csrf_token %}
+    <div class="row g-3">
+        {% for field in form %}
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                <div class="invalid-feedback">{{ field.errors }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</form>
