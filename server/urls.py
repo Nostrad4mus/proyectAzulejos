@@ -101,7 +101,7 @@ urlpatterns = [
     path('admin-dashboard/gestion-usuarios/<int:pk>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
     
     
-    # path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 ]
 
 
