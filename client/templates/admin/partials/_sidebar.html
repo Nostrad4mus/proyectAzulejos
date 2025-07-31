@@ -1,0 +1,52 @@
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h2>{% trans "Administración" %}</h2>
+    </div>
+    
+    <div class="sidebar-menu">
+        <ul>
+            <li class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <a href="{% url 'admin_dashboard' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>{% trans "Dashboard" %}</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'admin_azulejos' %}active{% endif %}">
+                <a href="{% url 'admin_azulejos' %}">
+                    <i class="bi bi-grid"></i>
+                    <span>{% trans "Azulejos" %}</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'admin_recursos' %}active{% endif %}">
+                <a href="{% url 'admin_recursos' %}">
+                    <i class="bi bi-book"></i>
+                    <span>{% trans "Recursos" %}</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'admin_equipo' %}active{% endif %}">
+                <a href="{% url 'admin_equipo' %}">
+                    <i class="bi bi-people"></i>
+                    <span>{% trans "Equipo" %}</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'admin_cuentos' %}active{% endif %}">
+                <a href="{% url 'admin_cuentos' %}">
+                    <i class="bi bi-bookmark-star"></i>
+                    <span>{% trans "Cuentos" %}</span>
+                </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'admin_talleres' %}active{% endif %}">
+                <a href="{% url 'admin_talleres' %}">
+                    <i class="bi bi-tools"></i>
+                    <span>{% trans "Talleres" %}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="sidebar-footer">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-box-arrow-left"></i> {% trans "Volver al sitio" %}
+        </a>
+    </div>
+</div>

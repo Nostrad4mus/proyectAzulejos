@@ -132,14 +132,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 
-if check_internet_connection():
-    STATIC_URL = 'https://raw.githubusercontent.com/Nostrad4mus/proyectAzulejos/refs/heads/main/client/static/'
-else:
-    STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Carpeta donde se recolectarán
+# if check_internet_connection():
+#     STATIC_URL = 'https://raw.githubusercontent.com/Nostrad4mus/proyectAzulejos/refs/heads/main/client/static/'
+# else:
+#     STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Carpeta donde se recolectarán
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'client/static'),  # Carpeta "static" en tu proyecto
+# ]
+
+
+
+# Configuración para archivos multimedia
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración para archivos estáticos
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Carpeta "static" en tu proyecto
+    os.path.join(BASE_DIR, 'client/static'),
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
